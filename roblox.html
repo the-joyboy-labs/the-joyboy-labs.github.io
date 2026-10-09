@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0d1117">
+  <meta name="description" content="Roblox Studio Luau examples focused on clean game systems, server-side validation, and readable scripting patterns.">
+  <title>Roblox Luau — The Joyboy Labs</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/main.js" defer></script>
+</head>
+<body>
+  <div class="site-starfield" aria-hidden="true">
+    <div class="star-layer stars-small"></div>
+    <div class="star-layer stars-medium"></div>
+    <div class="star-layer stars-large"></div>
+  </div>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="nav-shell">
+      <a class="brand" href="index.html" aria-label="The Joyboy Labs home">
+        <span class="brand-copy">
+          <span class="brand-name" aria-hidden="true">
+            <span class="brand-letter" style="animation-delay: 0ms">T</span><span class="brand-letter" style="animation-delay: 48ms">h</span><span class="brand-letter" style="animation-delay: 96ms">e</span><span class="brand-letter brand-space" style="animation-delay: 144ms">&nbsp;</span><span class="brand-letter" style="animation-delay: 192ms">J</span><span class="brand-letter" style="animation-delay: 240ms">o</span><span class="brand-letter" style="animation-delay: 288ms">y</span><span class="brand-letter" style="animation-delay: 336ms">b</span><span class="brand-letter" style="animation-delay: 384ms">o</span><span class="brand-letter" style="animation-delay: 432ms">y</span><span class="brand-letter brand-space" style="animation-delay: 480ms">&nbsp;</span><span class="brand-letter" style="animation-delay: 528ms">L</span><span class="brand-letter" style="animation-delay: 576ms">a</span><span class="brand-letter" style="animation-delay: 624ms">b</span><span class="brand-letter" style="animation-delay: 672ms">s</span>
+          </span>
+          <span class="brand-tag">DEV // SECURITY // CREATIVE</span>
+        </span>
+      </a>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-navigation" aria-label="Open navigation menu">
+        <span class="menu-toggle-lines" aria-hidden="true"><span></span><span></span><span></span></span>
+      </button>
+      <nav class="primary-nav" id="primary-navigation" aria-label="Primary navigation">
+        <a class="nav-link" href="index.html">Home</a>
+        <a class="nav-link is-active" href="roblox.html" aria-current="page">Roblox Luau</a>
+        <a class="nav-link" href="python.html">Python Tools</a>
+        <a class="nav-link" href="cyber.html">Cyber Security</a>
+        <a class="discord-link button button-discord" href="https://discord.gg/joyboyhakari_16266" target="_blank" rel="noopener noreferrer">
+          <span class="blob1" aria-hidden="true"></span><span class="blob2" aria-hidden="true"></span>
+          <span class="inner"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M19.7 5.3a17.6 17.6 0 0 0-4.3-1.4l-.5 1a16.2 16.2 0 0 0-5.8 0l-.5-1a17.6 17.6 0 0 0-4.3 1.4C1.6 9.2.8 13 .8 16.8a17.8 17.8 0 0 0 5.3 2.7l1.1-1.8-1.7-.8.4-.3a12.6 12.6 0 0 0 12.2 0l.4.3-1.7.8 1.1 1.8a17.8 17.8 0 0 0 5.3-2.7c0-4.4-.8-8.1-3.5-11.5ZM8.8 14.7c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.8.9 1.8 2-.8 2-1.8 2Zm6.4 0c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.8.9 1.8 2-.8 2-1.8 2Z"/></svg><span>Join Discord</span><span class="external-mark" aria-hidden="true">↗</span></span>
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="page-hero container" aria-labelledby="page-title">
+      <div class="page-hero-copy">
+        <p class="eyebrow"><span class="status-dot"></span> 01 // ROBLOX STUDIO</p>
+        <h1 id="page-title">Roblox <span class="title-accent">Luau</span></h1>
+        <p class="page-lead">Readable building blocks for Roblox experiences: server-aware logic, safer interactions, and patterns you can adapt in Studio.</p>
+        <div class="tag-row"><span class="tag">SERVER-SIDE FIRST</span><span class="tag">ROBLOX STUDIO</span><span class="tag">LEARN BY BUILDING</span></div>
+      </div>
+      <aside class="page-index-card" aria-label="Section overview">
+        <span class="index-card-label">IN THIS SECTION</span>
+        <span class="index-card-title">Patterns over shortcuts.</span>
+        <span class="index-card-line"><span>01</span> Secure interaction</span>
+        <span class="index-card-line"><span>02</span> Studio references</span>
+      </aside>
+    </section>
+
+    <section class="section-block container" aria-labelledby="script-title">
+      <div class="section-heading">
+        <div><p class="eyebrow">// FEATURED PATTERN</p><h2 id="script-title">A server-checked coin pickup</h2></div>
+        <p class="section-intro">Keep rewards on the server. This example checks the triggering player, their distance, and a short cooldown before changing a value.</p>
+      </div>
+
+      <article class="snippet-card">
+        <div class="snippet-heading">
+          <div><span class="snippet-kicker">PATTERN 01 <span aria-hidden="true">/</span> SERVER SCRIPT</span><h3>Reward a player through a ProximityPrompt</h3><p>Place a Script in ServerScriptService and add a ProximityPrompt named <code>CoinPrompt</code> under a BasePart or Attachment in Workspace.</p></div>
+          <span class="language-pill">LUAU</span>
+        </div>
+        <div class="code-card">
+          <div class="code-toolbar"><span class="code-file"><span class="file-dot"></span> ServerScriptService / CoinPickup.server.lua</span><button class="copy-button button button-utility" type="button" aria-label="Copy Luau code"><span class="blob1" aria-hidden="true"></span><span class="blob2" aria-hidden="true"></span><span class="inner"><svg aria-hidden="true" viewBox="0 0 20 20"><rect x="6.5" y="6.5" width="9" height="10" rx="1.5"></rect><path d="M12.5 6.5V4.8A1.3 1.3 0 0 0 11.2 3.5H5.3A1.3 1.3 0 0 0 4 4.8v7.4a1.3 1.3 0 0 0 1.3 1.3h1.2"></path></svg><span class="copy-label">Copy</span></span></button></div>
+          <pre><code><span class="token-keyword">local</span> Players = game:GetService(<span class="token-string">"Players"</span>)
+<span class="token-keyword">local</span> prompt = workspace:WaitForChild(<span class="token-string">"CoinPrompt"</span>)
+<span class="token-keyword">local</span> COIN_REWARD = <span class="token-number">5</span>
+<span class="token-keyword">local</span> MAX_DISTANCE = prompt.MaxActivationDistance + <span class="token-number">2</span>
+<span class="token-keyword">local</span> cooldowns = {}
+
+<span class="token-keyword">local function</span> awardCoins(player)
+    <span class="token-keyword">if</span> <span class="token-keyword">not</span> player <span class="token-keyword">or</span> player.Parent ~= Players <span class="token-keyword">then</span>
+        <span class="token-keyword">return</span>
+    <span class="token-keyword">end</span>
+
+    <span class="token-keyword">local</span> character = player.Character
+    <span class="token-keyword">local</span> root = character <span class="token-keyword">and</span> character:FindFirstChild(<span class="token-string">"HumanoidRootPart"</span>)
+    <span class="token-keyword">local</span> promptPart = prompt.Parent
+
+    <span class="token-keyword">if</span> promptPart <span class="token-keyword">and</span> promptPart:IsA(<span class="token-string">"Attachment"</span>) <span class="token-keyword">then</span>
+        promptPart = promptPart.Parent
+    <span class="token-keyword">end</span>
+    <span class="token-keyword">if not</span> root <span class="token-keyword">or not</span> promptPart <span class="token-keyword">or not</span> promptPart:IsA(<span class="token-string">"BasePart"</span>) <span class="token-keyword">then</span>
+        <span class="token-keyword">return</span>
+    <span class="token-keyword">end</span>
+    <span class="token-keyword">if</span> (root.Position - promptPart.Position).Magnitude &gt; MAX_DISTANCE <span class="token-keyword">then</span>
+        <span class="token-keyword">return</span>
+    <span class="token-keyword">end</span>
+
+    <span class="token-keyword">local</span> now = os.clock()
+    <span class="token-keyword">if</span> cooldowns[player] <span class="token-keyword">and</span> now - cooldowns[player] &lt; <span class="token-number">1</span> <span class="token-keyword">then</span>
+        <span class="token-keyword">return</span>
+    <span class="token-keyword">end</span>
+    cooldowns[player] = now
+
+    <span class="token-keyword">local</span> leaderstats = player:FindFirstChild(<span class="token-string">"leaderstats"</span>)
+    <span class="token-keyword">local</span> coins = leaderstats <span class="token-keyword">and</span> leaderstats:FindFirstChild(<span class="token-string">"Coins"</span>)
+    <span class="token-keyword">if</span> coins <span class="token-keyword">and</span> coins:IsA(<span class="token-string">"IntValue"</span>) <span class="token-keyword">then</span>
+        coins.Value += COIN_REWARD
+    <span class="token-keyword">end</span>
+<span class="token-keyword">end</span>
+
+Players.PlayerRemoving:Connect(<span class="token-keyword">function</span>(player)
+    cooldowns[player] = <span class="token-keyword">nil</span>
+<span class="token-keyword">end</span>)
+prompt.Triggered:Connect(awardCoins)</code></pre>
+        </div>
+        <div class="snippet-footnote"><span class="footnote-mark" aria-hidden="true">i</span><p>Example assumes your game creates <code>leaderstats.Coins</code>. Keep important game state and reward decisions on the server, and test changes in a private Studio session first.</p></div>
+      </article>
+    </section>
+
+    <section class="section-block section-block-compact container" aria-labelledby="principles-title">
+      <div class="section-heading">
+        <div><p class="eyebrow">// BUILDING BLOCKS</p><h2 id="principles-title">Good habits, built in.</h2></div>
+        <p class="section-intro">A few dependable rules make game systems easier to maintain and harder to abuse.</p>
+      </div>
+      <div class="principle-grid">
+        <article class="mini-card"><span class="mini-card-index">A / AUTHORITY</span><h3>Trust the server</h3><p>Let the server validate important actions and own rewards, inventory, and progression.</p></article>
+        <article class="mini-card"><span class="mini-card-index">B / VALIDATION</span><h3>Check every request</h3><p>Verify types, distance, cooldowns, and game state before applying a change.</p></article>
+        <article class="mini-card"><span class="mini-card-index">C / ITERATION</span><h3>Test in Studio</h3><p>Use separate test sessions and clear output logs to catch issues early.</p></article>
+      </div>
+    </section>
+
+    <section class="resource-strip container" aria-label="Official Roblox documentation">
+      <div><p class="eyebrow">// KEEP LEARNING</p><h2>Official docs are your toolkit.</h2><p>Use Roblox Creator documentation as the source of truth for APIs and platform behavior.</p></div>
+      <a class="button button-outline" href="https://create.roblox.com/docs/scripting" target="_blank" rel="noopener noreferrer"><span class="blob1" aria-hidden="true"></span><span class="blob2" aria-hidden="true"></span><span class="inner"><span>Roblox scripting docs</span><span aria-hidden="true">↗</span></span></a>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-shell">
+      <a class="footer-brand" href="index.html"><span class="brand-mark" aria-hidden="true"><span class="brand-mark-bracket">&lt;</span><span class="brand-mark-core">JL</span><span class="brand-mark-bracket">/&gt;</span></span><span>The Joyboy Labs</span></a>
+      <p>Built for curiosity. Shared with care.</p>
+      <div class="footer-links"><a href="roblox.html">Luau</a><a href="python.html">Python</a><a href="cyber.html">Cyber Security</a></div>
+      <span class="footer-meta">STATIC SITE <span aria-hidden="true">·</span> © <span data-current-year>2026</span> THE JOYBOY LABS</span>
+    </div>
+  </footer>
+</body>
+</html>
