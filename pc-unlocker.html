@@ -1,0 +1,762 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0d1117">
+  <meta name="description" content="PC Unlocker: an experimental phone-to-PC Windows unlock workflow using an Android app, a custom Credential Provider, a Windows service, and a Cloudflare relay.">
+  <title>PC Unlocker — The Joyboy Labs</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0d1117;
+      --bg-deep: #090d12;
+      --panel: #111820;
+      --panel-soft: #0f151c;
+      --text: #e6edf3;
+      --muted: #a1adba;
+      --subtle: #788694;
+      --line: rgba(139, 148, 158, 0.2);
+      --line-strong: rgba(139, 148, 158, 0.34);
+      --cyan: #00ffcc;
+      --blue: #58a6ff;
+      --violet: #c3a1ff;
+      --amber: #e3b341;
+      --red: #ff7b72;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --mono: "Fira Code", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      --max: 1160px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 118px; background: var(--bg); }
+    body {
+      min-width: 320px;
+      margin: 0;
+      color: var(--text);
+      background: radial-gradient(ellipse at 16% -14%, rgba(0, 255, 204, 0.075), transparent 33rem),
+                  radial-gradient(ellipse at 100% 43%, rgba(88, 166, 255, 0.045), transparent 38rem), var(--bg);
+      font: 15px/1.7 var(--sans);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; }
+    ::selection { color: #07120f; background: var(--cyan); }
+    :focus-visible { outline: 2px solid var(--cyan); outline-offset: 4px; }
+    .skip-link { position: fixed; z-index: 100; top: 10px; left: 12px; padding: 9px 13px; transform: translateY(-150%); border-radius: 7px; color: #06120f; background: var(--cyan); font-weight: 700; }
+    .skip-link:focus { transform: translateY(0); }
+    .wrap { width: min(var(--max), calc(100% - 44px)); margin-inline: auto; }
+
+    .site-header {
+      position: sticky;
+      z-index: 20;
+      top: 0;
+      border-bottom: 1px solid rgba(139, 148, 158, 0.14);
+      background: rgba(9, 13, 18, 0.9);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+    .header-inner { display: grid; width: min(var(--max), calc(100% - 44px)); grid-template-rows: 58px 44px; justify-items: center; margin-inline: auto; padding-top: 5px; }
+    .brand { display: grid; justify-items: center; align-content: center; grid-row: 1; line-height: 1.15; }
+    .brand-name { color: var(--text); font: 700 15px/1.2 var(--mono); letter-spacing: -0.055em; animation: brand-reveal 800ms ease-out both; }
+    .brand-tag { margin-top: 4px; color: var(--subtle); font: 8px/1.2 var(--mono); letter-spacing: 0.12em; }
+    @keyframes brand-reveal { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    .primary-nav { display: flex; grid-row: 2; align-items: center; justify-self: center; gap: 5px; }
+    .primary-nav a { position: relative; padding: 8px 11px; border-radius: 6px; color: var(--muted); font-size: 11px; transition: color 150ms ease, background 150ms ease; }
+    .primary-nav a:hover, .primary-nav a[aria-current="page"] { color: var(--text); background: rgba(255, 255, 255, 0.045); }
+    .primary-nav a[aria-current="page"]::after { position: absolute; right: 12px; bottom: 3px; left: 12px; height: 1px; background: var(--cyan); content: ""; }
+
+    main { min-height: 70vh; }
+    .hero { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(260px, 0.75fr); align-items: center; gap: clamp(28px, 6vw, 76px); padding-block: 66px 50px; }
+    .eyebrow { display: flex; align-items: center; gap: 9px; margin: 0; color: var(--cyan); font: 600 9px/1.5 var(--mono); letter-spacing: 0.12em; }
+    .status-dot { width: 7px; height: 7px; flex: 0 0 7px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 10px rgba(0, 255, 204, 0.45); }
+    h1, h2, h3, h4 { font-family: var(--mono); font-weight: 560; letter-spacing: -0.055em; }
+    h1 { margin: 18px 0 18px; font-size: clamp(2.7rem, 6.5vw, 5rem); line-height: 1.04; }
+    .accent { color: var(--cyan); }
+    .hero-copy { max-width: 720px; }
+    .hero-lead { max-width: 670px; margin: 0; color: var(--muted); font-size: clamp(15px, 1.7vw, 17px); line-height: 1.8; }
+    .badge-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
+    .badge { padding: 5px 8px; border: 1px solid var(--line); border-radius: 5px; color: var(--subtle); background: rgba(255,255,255,.015); font: 8px/1.4 var(--mono); letter-spacing: .08em; }
+    .repo-cta { display: inline-flex; align-items: center; gap: 11px; margin-top: 18px; }
+    /* GitHub icon button adapted from the Uiverse snippet supplied by the user. */
+    .Btn { isolation: isolate; position: relative; display: flex; width: 45px; height: 45px; flex: 0 0 45px; align-items: center; justify-content: center; overflow: visible; border: 0; border-radius: 7px; background: transparent; cursor: pointer; transition: transform .3s; }
+    .svgContainer { display: flex; width: 100%; height: 100%; align-items: center; justify-content: center; border: 1px solid rgba(156,156,156,.466); border-radius: 10px; background: transparent; letter-spacing: .8px; transition: all .3s; }
+    .svgContainer svg { width: 1.6em; height: 1.6em; }
+    .BG { position: absolute; z-index: -1; width: 100%; height: 100%; border-radius: 10px; background: #181818; pointer-events: none; transition: all .3s; }
+    .Btn:hover .BG { transform: rotate(35deg); transform-origin: bottom; }
+    .Btn:hover .svgContainer { border-color: rgba(156,156,156,.65); background: rgba(156,156,156,.2); backdrop-filter: blur(4px); }
+    .Btn:active { transform: scale(.94); }
+    .repo-cta-copy { display: grid; gap: 2px; }
+    .repo-cta-copy strong { color: var(--text); font: 600 10px var(--mono); }
+    .repo-cta-copy span { color: var(--subtle); font-size: 10px; }
+    .hero-card { padding: 20px; border: 1px solid var(--line); border-radius: 10px; background: linear-gradient(145deg, rgba(17,24,32,.94), rgba(12,17,23,.84)); box-shadow: 0 20px 55px rgba(0,0,0,.18); }
+    .hero-card-head { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+    .hero-card-head span:first-child { color: var(--subtle); font: 8px var(--mono); letter-spacing: .1em; }
+    .project-status { display: inline-flex; align-items: center; gap: 6px; color: var(--amber); font: 8px var(--mono); letter-spacing: .06em; }
+    .project-status i { width: 6px; height: 6px; border-radius: 50%; background: var(--amber); }
+    .hero-card h2 { margin: 16px 0 6px; font-size: 15px; }
+    .hero-card p { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.7; }
+    .hero-specs { display: grid; gap: 9px; margin: 17px 0 0; padding: 0; list-style: none; }
+    .hero-specs li { display: flex; justify-content: space-between; gap: 10px; color: var(--subtle); font: 9px var(--mono); }
+    .hero-specs strong { color: var(--text); font-weight: 500; text-align: right; }
+    .safety-note { display: flex; align-items: flex-start; gap: 12px; margin-top: 25px; padding: 15px 17px; border: 1px solid rgba(227,179,65,.24); border-radius: 8px; background: rgba(227,179,65,.045); }
+    .safety-icon { display: grid; width: 21px; height: 21px; flex: 0 0 21px; place-items: center; border: 1px solid rgba(227,179,65,.45); border-radius: 50%; color: var(--amber); font: 11px var(--mono); }
+    .safety-note p { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.7; }
+    .safety-note strong { color: #ead392; font-weight: 650; }
+
+    .section { padding-block: 41px 55px; }
+    .section-head { display: grid; grid-template-columns: minmax(0, 1fr) minmax(230px, .72fr); align-items: end; gap: 30px; margin-bottom: 24px; }
+    .section-head h2 { margin: 9px 0 0; font-size: clamp(1.45rem, 3vw, 2rem); line-height: 1.28; }
+    .section-intro { max-width: 475px; margin: 0 0 2px; color: var(--muted); font-size: 12px; line-height: 1.75; }
+    .section-label { margin: 0; color: var(--cyan); font: 600 9px/1.5 var(--mono); letter-spacing: .12em; }
+    .panel { border: 1px solid var(--line); border-radius: 10px; background: rgba(16, 23, 30, .72); }
+
+    /* Interactive, client-only flow simulator */
+    .demo-shell { overflow: hidden; border: 1px solid rgba(88,166,255,.24); border-radius: 11px; background: linear-gradient(145deg, rgba(17,24,32,.95), rgba(11,16,22,.96)); }
+    .demo-top { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 13px 17px; border-bottom: 1px solid var(--line); }
+    .demo-title { display: flex; align-items: center; gap: 9px; color: var(--text); font: 10px var(--mono); }
+    .demo-title svg { width: 15px; height: 15px; fill: var(--blue); }
+    .mock-pill { padding: 4px 7px; border: 1px solid rgba(227,179,65,.25); border-radius: 4px; color: var(--amber); font: 8px var(--mono); letter-spacing: .07em; }
+    .demo-grid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(245px, .72fr); }
+    .canvas-frame { min-width: 0; padding: 12px; border-right: 1px solid var(--line); }
+    #flowCanvas { display: block; width: 100%; height: 285px; border: 1px solid rgba(139,148,158,.12); border-radius: 7px; background: radial-gradient(ellipse at 50% 50%, rgba(22,36,50,.45), rgba(8,13,18,.5)); }
+    .demo-controls { display: flex; flex-direction: column; gap: 15px; padding: 18px; }
+    .state-box { padding: 13px; border: 1px solid var(--line); border-radius: 7px; background: rgba(8,13,18,.6); }
+    .state-label { display: block; color: var(--subtle); font: 8px var(--mono); letter-spacing: .1em; }
+    .state-title { display: block; margin-top: 5px; color: var(--blue); font: 600 14px var(--mono); }
+    .state-description { margin: 5px 0 0; color: var(--muted); font-size: 10px; line-height: 1.65; }
+    .control-buttons { display: grid; gap: 7px; }
+    .demo-button { display: inline-flex; min-height: 36px; align-items: center; justify-content: center; gap: 8px; padding: 0 10px; border: 1px solid var(--line-strong); border-radius: 6px; color: var(--text); background: #121b24; font-size: 10px; font-weight: 650; cursor: pointer; transition: border-color 140ms ease, background 140ms ease, color 140ms ease; }
+    .demo-button:hover:not(:disabled) { border-color: var(--cyan); color: var(--cyan); background: rgba(0,255,204,.045); }
+    .demo-button.primary { border-color: rgba(0,255,204,.34); color: var(--cyan); background: rgba(0,255,204,.07); }
+    .demo-button.primary:hover:not(:disabled) { background: rgba(0,255,204,.13); }
+    .demo-button.danger:hover:not(:disabled) { border-color: var(--red); color: var(--red); background: rgba(255,123,114,.05); }
+    .demo-button:disabled { opacity: .42; cursor: not-allowed; }
+    .event-log { display: grid; gap: 6px; max-height: 104px; overflow: auto; margin: auto 0 0; padding: 0; list-style: none; }
+    .event-log li { color: var(--subtle); font: 8px/1.5 var(--mono); }
+    .event-log li::before { margin-right: 7px; color: var(--cyan); content: ">"; }
+    .demo-foot { padding: 10px 15px; border-top: 1px solid var(--line); color: var(--subtle); font-size: 9px; line-height: 1.6; }
+    .demo-foot strong { color: var(--amber); font-weight: 600; }
+
+    .architecture-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+    .architecture-card { min-height: 190px; padding: 18px; border: 1px solid var(--line); border-radius: 8px; background: rgba(17,24,32,.62); }
+    .architecture-index { color: var(--cyan); font: 8px var(--mono); letter-spacing: .1em; }
+    .architecture-card h3 { margin: 15px 0 7px; font-size: 13px; line-height: 1.4; }
+    .architecture-card p { margin: 0; color: var(--muted); font-size: 10px; line-height: 1.75; }
+    .architecture-type { display: inline-block; margin-top: 13px; padding: 4px 6px; border: 1px solid var(--line); border-radius: 4px; color: var(--subtle); font: 8px var(--mono); }
+    .features-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .feature-card { min-height: 145px; padding: 17px; border: 1px solid var(--line); border-radius: 8px; background: rgba(17,24,32,.55); }
+    .feature-card > span { color: var(--cyan); font: 8px var(--mono); letter-spacing: .08em; }
+    .feature-card h3 { margin: 13px 0 6px; font-size: 12px; line-height: 1.45; }
+    .feature-card p { margin: 0; color: var(--muted); font-size: 10px; line-height: 1.7; }
+
+    .workflow { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; counter-reset: flow; }
+    .workflow-step { position: relative; min-height: 133px; padding: 17px 18px; border: 1px solid var(--line); border-radius: 8px; background: rgba(17,24,32,.57); counter-increment: flow; }
+    .workflow-step::before { display: block; margin-bottom: 14px; color: var(--cyan); content: "0" counter(flow) " / FLOW"; font: 8px var(--mono); letter-spacing: .08em; }
+    .workflow-step h3 { margin: 0 0 5px; font-size: 12px; }
+    .workflow-step p { margin: 0; color: var(--muted); font-size: 10px; line-height: 1.65; }
+
+    .two-col { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, .82fr); gap: 14px; }
+    .content-card { padding: 20px; border: 1px solid var(--line); border-radius: 9px; background: rgba(17,24,32,.62); }
+    .content-card h3 { margin: 0 0 11px; font-size: 14px; }
+    .content-card > p { margin: 0 0 12px; color: var(--muted); font-size: 11px; line-height: 1.75; }
+    .check-list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+    .check-list li { display: grid; grid-template-columns: 15px 1fr; gap: 8px; color: var(--muted); font-size: 10px; line-height: 1.65; }
+    .check-list li::before { color: var(--cyan); content: "//"; font: 9px var(--mono); }
+    .inline-code { padding: 1px 5px; border: 1px solid var(--line); border-radius: 3px; color: var(--blue); background: var(--bg-deep); font: .9em var(--mono); }
+    .version-note { margin-top: 13px !important; padding: 10px 11px; border-left: 2px solid var(--amber); background: rgba(227,179,65,.04); color: #c7b784 !important; font-size: 10px !important; }
+
+    .steps { display: grid; gap: 11px; margin: 0; padding: 0; list-style: none; counter-reset: install; }
+    .steps li { display: grid; grid-template-columns: 28px 1fr; gap: 10px; color: var(--muted); font-size: 11px; line-height: 1.7; counter-increment: install; }
+    .steps li::before { display: grid; width: 25px; height: 25px; place-items: center; border: 1px solid rgba(0,255,204,.25); border-radius: 6px; color: var(--cyan); content: counter(install, decimal-leading-zero); font: 8px var(--mono); }
+    .steps strong { color: var(--text); font-weight: 620; }
+
+    .code-card { overflow: hidden; border: 1px solid var(--line); border-radius: 8px; background: var(--bg-deep); }
+    .code-toolbar { display: flex; min-height: 39px; align-items: center; justify-content: space-between; gap: 10px; padding: 5px 9px 5px 13px; border-bottom: 1px solid rgba(139,148,158,.13); background: rgba(255,255,255,.015); }
+    .code-file { display: inline-flex; min-width: 0; align-items: center; gap: 8px; overflow-wrap: anywhere; color: var(--subtle); font: 8px var(--mono); }
+    .file-dot { width: 6px; height: 6px; flex: 0 0 6px; border-radius: 2px; background: var(--blue); }
+    .copy-button { display: inline-flex; min-height: 27px; flex: 0 0 auto; align-items: center; gap: 6px; padding: 0 8px; border: 1px solid var(--line-strong); border-radius: 5px; color: var(--muted); background: #121a22; font-size: 9px; font-weight: 600; cursor: pointer; transition: color 130ms ease, border-color 130ms ease; }
+    .copy-button:hover { border-color: var(--cyan); color: var(--cyan); }
+    .copy-button svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 1.4; }
+    .copy-button.is-copied { border-color: rgba(0,255,204,.4); color: var(--cyan); }
+    .copy-button.is-error { border-color: rgba(255,123,114,.4); color: var(--red); }
+    pre { max-width: 100%; overflow: auto; margin: 0; scrollbar-color: #35424e #090d12; scrollbar-width: thin; }
+    pre code { display: block; min-width: max-content; padding: 13px 15px; color: #d2dae2; font: 10px/1.7 var(--mono); white-space: pre; }
+    .tok-key { color: #ff7b72; }
+    .tok-str { color: #a5d6ff; }
+    .tok-call { color: #d2a8ff; }
+    .tok-comment { color: #778694; font-style: italic; }
+
+    .project-tree { margin-top: 16px; }
+    .project-tree pre code { color: #c9d1d9; }
+    .challenge-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
+    .challenge { padding: 17px; border: 1px solid var(--line); border-radius: 8px; background: rgba(17,24,32,.55); }
+    .challenge h3 { margin: 0 0 6px; color: var(--text); font-size: 11px; }
+    .challenge p { margin: 0; color: var(--muted); font-size: 10px; line-height: 1.7; }
+
+    .troubleshooting { display: grid; gap: 8px; }
+    .troubleshooting details { overflow: hidden; border: 1px solid var(--line); border-radius: 7px; background: rgba(17,24,32,.52); }
+    .troubleshooting summary { display: flex; min-height: 48px; align-items: center; justify-content: space-between; gap: 14px; padding: 11px 14px; color: var(--text); cursor: pointer; list-style: none; font-family: var(--mono); font-size: 10px; }
+    .troubleshooting summary::-webkit-details-marker { display: none; }
+    .troubleshooting summary::after { color: var(--cyan); content: "+"; font-size: 16px; }
+    .troubleshooting details[open] summary::after { content: "−"; }
+    .trouble-body { padding: 0 14px 14px; border-top: 1px solid rgba(139,148,158,.12); }
+    .trouble-body p { margin: 11px 0 0; color: var(--muted); font-size: 10px; line-height: 1.7; }
+    .trouble-body strong { color: var(--text); font-weight: 650; }
+    .trouble-body .code-card { margin-top: 11px; }
+
+    .credits-grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: 13px; }
+    .footer-note { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.8; }
+    .site-footer { margin-top: 25px; border-top: 1px solid var(--line); background: rgba(8,12,17,.56); }
+    .footer-inner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 20px; padding-block: 18px; }
+    .footer-brand { color: var(--text); font: 600 10px var(--mono); }
+    .footer-inner p, .footer-inner span { margin: 0; color: var(--subtle); font-size: 9px; }
+    .back-top { color: var(--cyan) !important; font: 9px var(--mono) !important; }
+
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; gap: 25px; padding-top: 48px; }
+      .hero-card { max-width: 650px; }
+      .architecture-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .demo-grid { grid-template-columns: 1fr; }
+      .canvas-frame { border-right: 0; border-bottom: 1px solid var(--line); }
+      .demo-controls { display: grid; grid-template-columns: minmax(0,.8fr) minmax(210px,1fr); align-items: start; }
+      .control-buttons { grid-column: 2; grid-row: 1 / span 2; }
+      .event-log { grid-column: 1; grid-row: 2; margin-top: -4px; }
+    }
+    @media (max-width: 650px) {
+      .wrap, .header-inner { width: min(100% - 32px, var(--max)); }
+      .header-inner { min-height: 68px; grid-template-rows: auto auto; gap: 7px; padding-block: 8px 9px; }
+      .brand { grid-row: 1; }
+      .brand-tag { display: none; }
+      .primary-nav { grid-row: 2; width: 100%; flex-wrap: wrap; justify-content: center; gap: 1px; }
+      .primary-nav a { padding: 7px 8px; font-size: 9px; }
+      .primary-nav a[aria-current="page"]::after { right: 8px; left: 8px; }
+      .hero { padding-block: 42px 28px; }
+      .hero-card { padding: 16px; }
+      .section { padding-block: 33px 42px; }
+      .section-head { grid-template-columns: 1fr; gap: 9px; }
+      .architecture-grid, .features-grid, .workflow, .two-col, .challenge-grid, .credits-grid { grid-template-columns: 1fr; }
+      .architecture-card { min-height: auto; }
+      .workflow-step { min-height: auto; }
+      #flowCanvas { height: 365px; }
+      .demo-controls { display: flex; }
+      .event-log { margin-top: 0; }
+      .control-buttons { display: grid; grid-template-columns: 1fr 1fr; }
+      .demo-button:first-child { grid-column: 1 / -1; }
+      .closing-actions { flex-direction: column; align-items: stretch; }
+      .footer-inner { align-items: flex-start; flex-direction: column; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="index.html" aria-label="The Joyboy Labs home">
+        <span class="brand-name">The Joyboy Labs</span>
+        <span class="brand-tag">DEV // SECURITY // CREATIVE</span>
+      </a>
+      <nav class="primary-nav" aria-label="Primary navigation">
+        <a href="index.html">Home</a>
+        <a href="roblox.html">Roblox Luau</a>
+        <a href="python.html">Python Tools</a>
+        <a href="cyber.html">Cyber Security</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero wrap" aria-labelledby="page-title">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="status-dot"></span> PROJECT SHOWCASE // WINDOWS + ANDROID</p>
+        <h1 id="page-title">PC <span class="accent">Unlocker</span></h1>
+        <p class="hero-lead">A phone-to-PC unlock proof-of-concept that connects an Android approval flow to Windows through a custom Credential Provider, a background service, and a Cloudflare relay.</p>
+        <div class="badge-row" aria-label="Project technologies">
+          <span class="badge">WINDOWS + ANDROID</span><span class="badge">C++ / C# / KOTLIN</span><span class="badge">CLOUDFLARE RELAY</span><span class="badge">OPEN SOURCE</span>
+        </div>
+        <div class="repo-cta">
+          <a class="Btn" href="https://github.com/ujjal-saha/Pc-unlock" target="_blank" rel="noopener noreferrer" aria-label="Open the PC Unlocker GitHub repository in a new tab">
+            <span class="svgContainer"><svg fill="white" viewBox="0 0 496 512" aria-hidden="true"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"></path></svg></span>
+            <span class="BG" aria-hidden="true"></span>
+          </a>
+          <span class="repo-cta-copy"><strong>Explore the source</strong><span>View the PC Unlocker repository on GitHub</span></span>
+        </div>
+        <div class="safety-note">
+          <span class="safety-icon" aria-hidden="true">!</span>
+          <p><strong>Experimental authentication software.</strong> The supplied README describes this as a working proof-of-concept, not a security-audited replacement for Windows Hello, a password, or a hardware security key. Test only on a disposable VM or non-critical device, and preserve a known-good sign-in method.</p>
+        </div>
+      </div>
+      <aside class="hero-card" aria-label="Project summary">
+        <div class="hero-card-head"><span>PROJECT PROFILE / 001</span><span class="project-status"><i></i> EXPERIMENTAL</span></div>
+        <h2>Approve at the phone.<br>Continue at the PC.</h2>
+        <p>Designed to route an unlock request through a relay and complete the Windows logon flow through a custom provider.</p>
+        <ul class="hero-specs">
+          <li><span>AUTHOR</span><strong>Ujjal Saha</strong></li>
+          <li><span>PC COMPONENTS</span><strong>Windows service + provider</strong></li>
+          <li><span>PHONE COMPONENT</span><strong>Android app / push</strong></li>
+          <li><span>RELAY</span><strong>Cloudflare</strong></li>
+        </ul>
+      </aside>
+    </section>
+
+    <section class="section wrap" aria-labelledby="demo-title">
+      <div class="section-head">
+        <div><p class="section-label">// INTERACTIVE WALKTHROUGH</p><h2 id="demo-title">Explore the unlock flow</h2></div>
+        <p class="section-intro">A local, client-side visualization of the message path. Try a mock request, then approve or reject it to see the state change.</p>
+      </div>
+      <div class="demo-shell" data-state="idle">
+        <div class="demo-top">
+          <span class="demo-title"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 2.2a9.8 9.8 0 1 0 0 19.6 9.8 9.8 0 0 0 0-19.6Zm1 14.1h-2v-2h2v2Zm0-4h-2V6.7h2v5.6Z"/></svg> Unlock-flow simulator</span>
+          <span class="mock-pill">MOCK ONLY · NO DEVICE CONNECTION</span>
+        </div>
+        <div class="demo-grid">
+          <div class="canvas-frame"><canvas id="flowCanvas" role="img" aria-label="Diagram showing an Android app, relay, Windows service, and Credential Provider"></canvas></div>
+          <div class="demo-controls">
+            <div class="state-box" aria-live="polite">
+              <span class="state-label">SIMULATION STATE</span>
+              <strong class="state-title" id="stateTitle">Idle / ready</strong>
+              <p class="state-description" id="stateDescription">Start a mock request to see the example message route.</p>
+            </div>
+            <div class="control-buttons">
+              <button class="demo-button primary" id="requestButton" type="button">Send mock unlock request</button>
+              <button class="demo-button" id="approveButton" type="button" disabled>Approve on phone</button>
+              <button class="demo-button danger" id="rejectButton" type="button" disabled>Reject request</button>
+              <button class="demo-button" id="resetButton" type="button">Reset demo</button>
+            </div>
+            <ul class="event-log" id="eventLog" aria-label="Simulation event log"><li>Simulator ready. No services contacted.</li></ul>
+          </div>
+        </div>
+        <div class="demo-foot"><strong>Safety boundary:</strong> the demo is simulated entirely in this page. It does not send network traffic, read credentials, control Windows, or unlock a device.</div>
+      </div>
+    </section>
+
+    <section class="section wrap" aria-labelledby="features-title">
+      <div class="section-head">
+        <div><p class="section-label">// FEATURE SET</p><h2 id="features-title">Built around a phone-approved flow</h2></div>
+        <p class="section-intro">The features below are summarized from the supplied README. They describe the intended project capabilities, not an independent security assessment.</p>
+      </div>
+      <div class="features-grid">
+        <article class="feature-card"><span>01 / PHONE APPROVAL</span><h3>Unlock without typing at the PC</h3><p>Send and approve an unlock request through the paired Android app.</p></article>
+        <article class="feature-card"><span>02 / WINDOWS LOGON</span><h3>Credential Provider integration</h3><p>Route approval into the Windows lock-screen sign-in experience.</p></article>
+        <article class="feature-card"><span>03 / RELAY DELIVERY</span><h3>Connected across background states</h3><p>Use a Cloudflare relay and Android push wake-up support instead of relying only on a direct socket.</p></article>
+        <article class="feature-card"><span>04 / LOCAL IDENTITY</span><h3>Pairing and PC identity</h3><p>Keep pairing and identity state coordinated between the service, app, and relay.</p></article>
+        <article class="feature-card"><span>05 / OPEN SOURCE</span><h3>Experiment and extend</h3><p>Explore the Windows, Android, and relay components and contribute improvements.</p></article>
+        <article class="feature-card"><span>06 / INSTALLER</span><h3>Guided setup</h3><p>Use the Windows setup wizard to register the background service and install the provider.</p></article>
+      </div>
+    </section>
+
+    <section class="section wrap" aria-labelledby="architecture-title">
+      <div class="section-head">
+        <div><p class="section-label">// SYSTEM MAP</p><h2 id="architecture-title">Four pieces, one workflow</h2></div>
+        <p class="section-intro">The README describes a Windows-side integration, a relay, and an Android approval surface. Component versions and relay endpoints are not included in the supplied text.</p>
+      </div>
+      <div class="architecture-grid">
+        <article class="architecture-card"><span class="architecture-index">01 / LOGON</span><h3>C++ Credential Provider</h3><p>Integrates with the Windows sign-in experience and participates in the unlock approval flow.</p><span class="architecture-type">Windows · x64 noted</span></article>
+        <article class="architecture-card"><span class="architecture-index">02 / BACKGROUND</span><h3>C# Windows Service</h3><p>Maintains PC identity and pairing state, connects to the relay, and handles local command flow.</p><span class="architecture-type">Windows service</span></article>
+        <article class="architecture-card"><span class="architecture-index">03 / ROUTING</span><h3>Cloudflare Relay</h3><p>Routes messages between the PC and Android app and supports notification wake-up delivery.</p><span class="architecture-type">Cloudflare Worker / relay</span></article>
+        <article class="architecture-card"><span class="architecture-index">04 / APPROVAL</span><h3>Android App</h3><p>Starts an unlock request and presents the user's approval or rejection action on the phone.</p><span class="architecture-type">Android · Kotlin badge</span></article>
+      </div>
+      <article class="content-card" style="margin-top:14px">
+        <h3>Dependencies &amp; compatibility notes</h3>
+        <ul class="check-list">
+          <li>Windows PC; the README calls out validating the Credential Provider for x64.</li>
+          <li>Paired Android device with the project's app and notification permissions enabled.</li>
+          <li>Windows service and Credential Provider binaries built from matching project versions.</li>
+          <li>Cloudflare relay deployment and Android push delivery (FCM is referenced in troubleshooting).</li>
+        </ul>
+        <p class="version-note">The supplied README does not specify exact Windows releases, .NET/C++ toolchain versions, Android API levels, or Cloudflare deployment settings. Check the project's own release and build documentation before installing.</p>
+      </article>
+    </section>
+
+    <section class="section wrap" aria-labelledby="workflow-title">
+      <div class="section-head">
+        <div><p class="section-label">// REQUEST LIFECYCLE</p><h2 id="workflow-title">How the README says it works</h2></div>
+        <p class="section-intro">The exact implementation details, cryptographic protocol, and server-side authorization checks are not specified in the supplied README; review the source before relying on the workflow.</p>
+      </div>
+      <div class="workflow">
+        <article class="workflow-step"><h3>PC service starts</h3><p>The background service keeps identity, pairing, and relay connection state.</p></article>
+        <article class="workflow-step"><h3>Provider is installed</h3><p>A custom Credential Provider is registered in the Windows logon environment.</p></article>
+        <article class="workflow-step"><h3>Phone requests unlock</h3><p>The Android app sends a request through the relay toward the paired PC.</p></article>
+        <article class="workflow-step"><h3>Relay forwards it</h3><p>The Cloudflare relay routes the request and supports push-based wake-up delivery.</p></article>
+        <article class="workflow-step"><h3>User approves or rejects</h3><p>The phone becomes the approval surface; a response is returned through the flow.</p></article>
+        <article class="workflow-step"><h3>Windows continues</h3><p>The provider completes the local sign-in flow only after the request is handled.</p></article>
+      </div>
+      <div class="two-col" style="margin-top:14px">
+        <article class="content-card"><h3>Why a relay?</h3><p>The README explains that a direct socket can be unreliable while a PC is asleep or background-restricted. A relay plus Android push wake-up is intended to improve delivery when the phone is not actively connected to the PC.</p></article>
+        <article class="content-card"><h3>Security reality check</h3><p>A relay and notification are transport pieces, not proof of secure authentication by themselves. Review pairing, token lifecycle, replay protection, credential handling, and recovery behavior in the project source.</p></article>
+      </div>
+    </section>
+
+    <section class="section wrap" aria-labelledby="install-title">
+      <div class="section-head">
+        <div><p class="section-label">// INSTALLATION &amp; USAGE</p><h2 id="install-title">Set up carefully</h2></div>
+        <p class="section-intro">The README describes a guided Windows installer and a pairing flow. It does not include a release URL, checksums, supported OS versions, or a rollback guide.</p>
+      </div>
+      <div class="two-col">
+        <article class="content-card">
+          <h3>Regular-user setup</h3>
+          <ol class="steps">
+            <li><span>Open the project's GitHub <strong>Releases</strong> page and download the installer below.</span></li>
+            <li><span>Run the setup wizard. Review the publisher and file source before continuing.</span></li>
+            <li><span>Approve UAC only if you have verified the installer and understand that it changes system-level logon components.</span></li>
+            <li><span>Let setup register the Windows service and install the Credential Provider.</span></li>
+            <li><span>Pair the Android device using the setup flow; confirm the service is running.</span></li>
+            <li><span>Send an unlock request in the Android app and approve it on the phone.</span></li>
+          </ol>
+          <div class="code-card" style="margin-top:17px">
+            <div class="code-toolbar"><span class="code-file"><i class="file-dot"></i> RELEASE ASSET NAME</span><button class="copy-button" type="button" aria-label="Copy installer filename"><svg aria-hidden="true" viewBox="0 0 20 20"><rect x="6.5" y="6.5" width="9" height="10" rx="1.5"></rect><path d="M12.5 6.5V4.8A1.3 1.3 0 0 0 11.2 3.5H5.3A1.3 1.3 0 0 0 4 4.8v7.4a1.3 1.3 0 0 0 1.3 1.3h1.2"></path></svg><span class="copy-label">Copy</span></button></div>
+            <pre><code><span class="tok-str">PhoneUnlock_Setup.exe</span></code></pre>
+          </div>
+        </article>
+        <article class="content-card">
+          <h3>Developer / tester checklist</h3>
+          <ul class="check-list">
+            <li>Use a disposable Windows VM or non-critical test machine; keep an alternate sign-in method available.</li>
+            <li>Build and stage the Credential Provider for the target architecture. The README specifically calls out <span class="inline-code">Release</span> + <span class="inline-code">x64</span>.</li>
+            <li>Keep Setup and Service binaries from the same build. Clear stale <span class="inline-code">bin</span> and <span class="inline-code">obj</span> outputs before rebuilding.</li>
+            <li>Check the service, pairing pipe, relay identity, and Android notification permissions as separate system boundaries.</li>
+            <li>Do not delete DPAPI-protected credential or pairing data casually; follow the project's recovery guidance.</li>
+          </ul>
+          <p class="version-note">Runtime versions, exact build commands, supported Windows releases, and release verification details were not present in the supplied README. Confirm them in the project's source and release notes.</p>
+        </article>
+      </div>
+      <div class="code-card project-tree">
+        <div class="code-toolbar"><span class="code-file"><i class="file-dot"></i> PROJECT COMPONENTS</span><button class="copy-button" type="button" aria-label="Copy project component list"><svg aria-hidden="true" viewBox="0 0 20 20"><rect x="6.5" y="6.5" width="9" height="10" rx="1.5"></rect><path d="M12.5 6.5V4.8A1.3 1.3 0 0 0 11.2 3.5H5.3A1.3 1.3 0 0 0 4 4.8v7.4a1.3 1.3 0 0 0 1.3 1.3h1.2"></path></svg><span class="copy-label">Copy</span></button></div>
+        <pre><code><span class="tok-call">PhoneUnlockService/</span>          <span class="tok-comment"># C# background daemon</span>
+<span class="tok-call">PhoneUnlockSetup/</span>            <span class="tok-comment"># Setup and pairing tool</span>
+<span class="tok-call">PhoneUnlockRelay/</span>            <span class="tok-comment"># Cloudflare relay / worker</span>
+<span class="tok-call">OfficialMicrosoftProvider/</span>   <span class="tok-comment"># C++ Credential Provider sample adaptation</span></code></pre>
+      </div>
+    </section>
+
+    <section class="section wrap" aria-labelledby="protocol-title">
+      <div class="section-head">
+        <div><p class="section-label">// SOURCE-DOCUMENT COMMANDS</p><h2 id="protocol-title">Named pipes &amp; pairing checks</h2></div>
+        <p class="section-intro">These names and the pairing command are copied from the README. They are documentation examples, not an invitation to expose a pipe or relay publicly.</p>
+      </div>
+      <div class="two-col">
+        <article class="content-card">
+          <h3>Pairing pipe test</h3>
+          <p>The README says the Setup UI should test the pairing pipe with the exact command below.</p>
+          <div class="code-card">
+            <div class="code-toolbar"><span class="code-file"><i class="file-dot"></i> PIPE COMMAND</span><button class="copy-button" type="button" aria-label="Copy pairing command"><svg aria-hidden="true" viewBox="0 0 20 20"><rect x="6.5" y="6.5" width="9" height="10" rx="1.5"></rect><path d="M12.5 6.5V4.8A1.3 1.3 0 0 0 11.2 3.5H5.3A1.3 1.3 0 0 0 4 4.8v7.4a1.3 1.3 0 0 0 1.3 1.3h1.2"></path></svg><span class="copy-label">Copy</span></button></div>
+<pre><code><span class="tok-key">BEGIN_PAIRING</span></code></pre>
+          </div>
+        </article>
+        <article class="content-card">
+          <h3>Message-mode read fix</h3>
+          <p>For the named-pipe `IsMessageComplete` issue, the README says to set message read mode immediately after connecting.</p>
+          <div class="code-card">
+            <div class="code-toolbar"><span class="code-file"><i class="file-dot"></i> C# · AFTER ConnectAsync</span><button class="copy-button" type="button" aria-label="Copy pipe read-mode line"><svg aria-hidden="true" viewBox="0 0 20 20"><rect x="6.5" y="6.5" width="9" height="10" rx="1.5"></rect><path d="M12.5 6.5V4.8A1.3 1.3 0 0 0 11.2 3.5H5.3A1.3 1.3 0 0 0 4 4.8v7.4a1.3 1.3 0 0 0 1.3 1.3h1.2"></path></svg><span class="copy-label">Copy</span></button></div>
+            <pre><code><span class="tok-call">pipe</span>.<span class="tok-key">ReadMode</span> = <span class="tok-call">PipeTransmissionMode</span>.<span class="tok-key">Message</span>;</code></pre>
+          </div>
+        </article>
+      </div>
+      <div class="two-col" style="margin-top:14px">
+        <article class="content-card"><h3>Pairing pipe</h3><p>The pairing/setup channel is named separately from the Credential Provider pipe.</p><div class="code-card"><div class="code-toolbar"><span class="code-file"><i class="file-dot"></i> SERVICE PIPE NAME</span><button class="copy-button" type="button" aria-label="Copy pairing pipe name"><svg aria-hidden="true" viewBox="0 0 20 20"><rect x="6.5" y="6.5" width="9" height="10" rx="1.5"></rect><path d="M12.5 6.5V4.8A1.3 1.3 0 0 0 11.2 3.5H5.3A1.3 1.3 0 0 0 4 4.8v7.4a1.3 1.3 0 0 0 1.3 1.3h1.2"></path></svg><span class="copy-label">Copy</span></button></div><pre><code><span class="tok-call">PhoneUnlockPairingPipe</span></code></pre></div></article>
+        <article class="content-card"><h3>Credential Provider pipe</h3><p>The README contrasts the pairing channel with the provider's local communication pipe.</p><div class="code-card"><div class="code-toolbar"><span class="code-file"><i class="file-dot"></i> PROVIDER PIPE NAME</span><button class="copy-button" type="button" aria-label="Copy provider pipe name"><svg aria-hidden="true" viewBox="0 0 20 20"><rect x="6.5" y="6.5" width="9" height="10" rx="1.5"></rect><path d="M12.5 6.5V4.8A1.3 1.3 0 0 0 11.2 3.5H5.3A1.3 1.3 0 0 0 4 4.8v7.4a1.3 1.3 0 0 0 1.3 1.3h1.2"></path></svg><span class="copy-label">Copy</span></button></div><pre><code><span class="tok-call">PhoneUnlockPipe</span></code></pre></div></article>
+      </div>
+    </section>
+
+    <section class="section wrap" aria-labelledby="engineering-title">
+      <div class="section-head">
+        <div><p class="section-label">// DEVELOPER JOURNEY</p><h2 id="engineering-title">What made this hard</h2></div>
+        <p class="section-intro">The README highlights the platform-specific work behind moving a prototype through installation, logon integration, and relay-based pairing.</p>
+      </div>
+      <div class="challenge-grid">
+        <article class="challenge"><h3>UAC &amp; service setup</h3><p>Installer elevation and service registration must respect Windows security boundaries and administrative permissions.</p></article>
+        <article class="challenge"><h3>Architecture matching</h3><p>The provider must match the target OS architecture; the README calls out validating an x64 Release build.</p></article>
+        <article class="challenge"><h3>COM identity &amp; registration</h3><p>CLSID and registry registration have to match the provider binary. Stale entries can cause the logon UI to fail or ignore the provider.</p></article>
+        <article class="challenge"><h3>Pairing &amp; background delivery</h3><p>Relay identity, named-pipe contracts, Android notification priority, and OEM battery policies all affect delivery.</p></article>
+      </div>
+      <article class="content-card" style="margin-top:13px"><h3>Contribution areas</h3><p>Potential work includes improving relay reliability and the security model, refining Android notification delivery, hardening the Windows service and Credential Provider, and documenting installation edge cases.</p></article>
+    </section>
+
+    <section class="section wrap" aria-labelledby="troubleshooting-title">
+      <div class="section-head">
+        <div><p class="section-label">// TROUBLESHOOTING</p><h2 id="troubleshooting-title">Common issues, quick checks</h2></div>
+        <p class="section-intro">Summarized from the supplied README. Use the project logs and source as the authority for exact commands and recovery procedures.</p>
+      </div>
+      <div class="troubleshooting">
+        <details><summary>01 / Windows service fails to start or register</summary><div class="trouble-body"><p><strong>Check:</strong> elevated installation, service registration, file/registry permissions, dependencies, and duplicate service instances.</p><p><strong>Try:</strong> rerun setup with UAC elevation, restart after stale registration, and remove duplicate instances before registering again.</p></div></details>
+        <details><summary>02 / Credential Provider does not appear on the lock screen</summary><div class="trouble-body"><p><strong>Check:</strong> COM GUID, registry path, provider DLL location, architecture, and leftover registration from an earlier install.</p><p><strong>Try:</strong> clean stale registration and rebuild the provider in Release + x64 for the target system.</p></div></details>
+        <details><summary>03 / Lock-screen integration is inconsistent after a rebuild</summary><div class="trouble-body"><p><strong>Check:</strong> target architecture, generated COM registration, stale DLLs, and accidental mixing of Debug and Release files.</p><p><strong>Try:</strong> clean the build, remove stale entries, stage the correct release binary, reboot, then retest in a VM.</p></div></details>
+        <details><summary>04 / Relay authentication returns 401</summary><div class="trouble-body"><p><strong>Check:</strong> the same canonical PC ID across service, pairing store, relay registration, and WebSocket connection; also inspect tokens left by an older test environment.</p><p><strong>Try:</strong> remove only known-stale pairing data, re-register the PC identity, and verify one service instance is active.</p></div></details>
+        <details><summary>05 / Named-pipe communication stalls</summary><div class="trouble-body"><p><strong>Check:</strong> the pipe path, duplicate services, ACL permissions, broken-pipe logs, and whether both processes share the same message contract.</p><p><strong>Try:</strong> restart one service instance and confirm the pairing and provider pipes are not confused.</p></div></details>
+        <details><summary>06 / Android notifications arrive late or not at all</summary><div class="trouble-body"><p><strong>Check:</strong> FCM priority, notification permission, battery optimization, and the phone manufacturer's background-kill policy.</p><p><strong>Try:</strong> follow the app's battery-optimization guidance and test push delivery on the actual device.</p></div></details>
+        <details><summary>07 / Builds use stale files or duplicate outputs</summary><div class="trouble-body"><p><strong>Check:</strong> old intermediates, a service still loading a previous binary, and multiple builds writing into one output directory.</p><p><strong>Try:</strong> stop duplicate processes, clear generated build output, and rebuild from a clean configuration.</p></div></details>
+        <details><summary>08 / Pairing data remains stale after reinstall</summary><div class="trouble-body"><p><strong>Check:</strong> multiple config locations, previous registry state, and mismatched PC identities.</p><p><strong>Try:</strong> follow the project's clean-pairing procedure and avoid deleting DPAPI-protected credential data without a recovery plan.</p></div></details>
+        <details><summary>09 / GitHub upload or repository packaging fails</summary><div class="trouble-body"><p><strong>Check:</strong> build caches, generated binaries, logs, and dependency folders included unnecessarily in the upload.</p><p><strong>Try:</strong> keep only required source and release artifacts; exclude caches and temporary runtime output.</p></div></details>
+        <details><summary>10 / Setup reports ReadMode is not PipeTransmissionMode.Message</summary><div class="trouble-body"><p><strong>Cause:</strong> the Setup client calls <code class="inline-code">IsMessageComplete</code> while its pipe is still in byte-read mode.</p><p><strong>Fix:</strong> set message read mode immediately after <code class="inline-code">ConnectAsync</code>, rebuild Setup in Release mode, and replace the installed Setup executable and DLLs.</p></div></details>
+        <details><summary>11 / Pairing code is unavailable while the service is running</summary><div class="trouble-body"><p><strong>Check:</strong> that the service exposes <code class="inline-code">PhoneUnlockPairingPipe</code> and not only <code class="inline-code">PhoneUnlockPipe</code>; confirm Setup and service are from the same Release build and the relay connection is active.</p><p><strong>Test command from the README:</strong></p><div class="code-card"><div class="code-toolbar"><span class="code-file"><i class="file-dot"></i> PAIRING REQUEST</span><button class="copy-button" type="button" aria-label="Copy pairing request"><svg aria-hidden="true" viewBox="0 0 20 20"><rect x="6.5" y="6.5" width="9" height="10" rx="1.5"></rect><path d="M12.5 6.5V4.8A1.3 1.3 0 0 0 11.2 3.5H5.3A1.3 1.3 0 0 0 4 4.8v7.4a1.3 1.3 0 0 0 1.3 1.3h1.2"></path></svg><span class="copy-label">Copy</span></button></div><pre><code>BEGIN_PAIRING</code></pre></div></div></details>
+        <details><summary>12 / Setup and Service binaries do not match</summary><div class="trouble-body"><p><strong>Check:</strong> whether the installed Setup expects a pairing pipe or response format absent from the running service.</p><p><strong>Try:</strong> rebuild both in Release, replace the complete Setup and Service output folders, remove stale staged files, restart the service as Administrator, and compare SHA-256 hashes.</p></div></details>
+        <details><summary>13 / Windows refuses to restart the service during testing</summary><div class="trouble-body"><p><strong>Cause:</strong> stopping a service or replacing loaded binaries normally requires elevation.</p><p><strong>Try:</strong> use an Administrator terminal or Services console, replace files only after the process stops, and close any running Setup UI before relaunching.</p></div></details>
+        <details><summary>14 / Pairing works locally but the phone does not complete it</summary><div class="trouble-body"><p><strong>Check:</strong> the six-digit code's five-minute validity, matching relay URL and code, active service-to-relay connection, and Android notification permissions.</p><p><strong>Try:</strong> generate a fresh code, complete pairing before it expires, inspect relay logs for 401 responses, and keep only one service instance active for the PC identity.</p></div></details>
+      </div>
+    </section>
+
+    <section class="section wrap" aria-labelledby="credits-title">
+      <div class="section-head">
+        <div><p class="section-label">// PROJECT NOTES</p><h2 id="credits-title">Credits, license &amp; status</h2></div>
+        <p class="section-intro">A research-style implementation exploring Windows internals, secure messaging, and mobile-device wake-up behavior.</p>
+      </div>
+      <div class="credits-grid">
+        <article class="content-card"><h3>Credits</h3><p class="footer-note">The project is based on and heavily adapts Microsoft's official Windows Credential Provider sample. The README credits that sample as foundational to the lock-screen integration.</p></article>
+        <article class="content-card"><h3>License &amp; status</h3><p class="footer-note">The README describes the project as open source for educational, experimental, and real-world use, but asks readers to review the repository's license before commercial deployment or redistribution. It is best treated as an experimental proof-of-concept.</p></article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner wrap">
+      <a class="footer-brand" href="index.html">&lt;JL/&gt; The Joyboy Labs</a>
+      <p>PC Unlocker · Project documentation generated from the supplied README.</p>
+      <a class="back-top" href="#main">BACK TO TOP ↑</a>
+    </div>
+  </footer>
+
+  <script>
+    (() => {
+      const copyButtons = document.querySelectorAll(".copy-button");
+
+      async function copyText(text) {
+        if (navigator.clipboard && window.isSecureContext) {
+          try {
+            await navigator.clipboard.writeText(text);
+            return true;
+          } catch {
+            // Continue with the legacy copy fallback.
+          }
+        }
+        const field = document.createElement("textarea");
+        field.value = text;
+        field.setAttribute("readonly", "");
+        field.style.position = "fixed";
+        field.style.left = "-9999px";
+        document.body.appendChild(field);
+        field.select();
+        field.setSelectionRange(0, field.value.length);
+        let success = false;
+        try { success = document.execCommand("copy"); } catch { success = false; }
+        field.remove();
+        return success;
+      }
+
+      copyButtons.forEach((button) => {
+        button.addEventListener("click", async () => {
+          const code = button.closest(".code-card")?.querySelector("pre code");
+          const label = button.querySelector(".copy-label");
+          if (!code || !label || button.disabled) return;
+          const original = label.textContent;
+          const originalAriaLabel = button.dataset.originalLabel || button.getAttribute("aria-label") || "Copy code";
+          button.dataset.originalLabel = originalAriaLabel;
+          button.disabled = true;
+          try {
+            if (!(await copyText(code.textContent.trim()))) throw new Error("Clipboard not available");
+            label.textContent = "Copied";
+            button.classList.add("is-copied");
+            button.setAttribute("aria-label", "Copied to clipboard");
+          } catch {
+            label.textContent = "Try again";
+            button.classList.add("is-error");
+            button.setAttribute("aria-label", "Copy failed; try again");
+          } finally {
+            button.disabled = false;
+            window.clearTimeout(button.resetTimer);
+            button.resetTimer = window.setTimeout(() => {
+              label.textContent = original;
+              button.classList.remove("is-copied", "is-error");
+              button.setAttribute("aria-label", originalAriaLabel);
+            }, 1700);
+          }
+        });
+      });
+
+      const canvas = document.getElementById("flowCanvas");
+      const context = canvas?.getContext("2d");
+      const shell = document.querySelector(".demo-shell");
+      const stateTitle = document.getElementById("stateTitle");
+      const stateDescription = document.getElementById("stateDescription");
+      const requestButton = document.getElementById("requestButton");
+      const approveButton = document.getElementById("approveButton");
+      const rejectButton = document.getElementById("rejectButton");
+      const resetButton = document.getElementById("resetButton");
+      const eventLog = document.getElementById("eventLog");
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+      let simulationState = "idle";
+      let logicalWidth = 0;
+      let logicalHeight = 0;
+      let frameId = 0;
+      const labels = ["ANDROID APP", "CLOUDFLARE RELAY", "WINDOWS SERVICE", "CREDENTIAL PROVIDER"];
+
+      function logEvent(message) {
+        const item = document.createElement("li");
+        const time = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+        item.textContent = `${time} / ${message}`;
+        eventLog.prepend(item);
+        while (eventLog.children.length > 5) eventLog.lastElementChild.remove();
+      }
+
+      function setState(nextState, title, description) {
+        simulationState = nextState;
+        shell.dataset.state = nextState;
+        stateTitle.textContent = title;
+        stateDescription.textContent = description;
+        const isPending = nextState === "pending";
+        requestButton.disabled = isPending;
+        approveButton.disabled = !isPending;
+        rejectButton.disabled = !isPending;
+        draw(performance.now());
+      }
+
+      requestButton.addEventListener("click", () => {
+        setState("pending", "Request in transit", "Mock request path is active. Choose Approve or Reject to finish the simulation.");
+        logEvent("Mock unlock request sent through the illustrated path.");
+      });
+      approveButton.addEventListener("click", () => {
+        if (simulationState !== "pending") return;
+        setState("approved", "Approved / simulated", "The mock approval returns to the PC. No credential is read and Windows is not unlocked.");
+        logEvent("Mock approval accepted; demonstration complete (no device unlocked).");
+      });
+      rejectButton.addEventListener("click", () => {
+        if (simulationState !== "pending") return;
+        setState("rejected", "Rejected / simulated", "The mock request was denied. The page has not contacted a phone or PC.");
+        logEvent("Mock request rejected; no system action taken.");
+      });
+      resetButton.addEventListener("click", () => {
+        setState("idle", "Idle / ready", "Start a mock request to see the example message route.");
+        logEvent("Demo reset. No services contacted.");
+      });
+
+      function canvasPoints(width, height) {
+        if (width < 620) {
+          const gap = (height - 76) / 3;
+          return labels.map((_, index) => ({ x: width / 2, y: 38 + gap * index }));
+        }
+        const gap = (width - 120) / 3;
+        return labels.map((_, index) => ({ x: 60 + gap * index, y: height / 2 }));
+      }
+
+      function roundedRect(ctx, x, y, w, h, r) {
+        ctx.beginPath();
+        ctx.roundRect(x, y, w, h, r);
+      }
+
+      function draw(timestamp = 0) {
+        if (!canvas || !context) return;
+        const rect = canvas.getBoundingClientRect();
+        if (!rect.width || !rect.height) return;
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const pixelWidth = Math.round(rect.width * dpr);
+        const pixelHeight = Math.round(rect.height * dpr);
+        if (canvas.width !== pixelWidth || canvas.height !== pixelHeight) {
+          canvas.width = pixelWidth;
+          canvas.height = pixelHeight;
+        }
+        context.setTransform(dpr, 0, 0, dpr, 0, 0);
+        logicalWidth = rect.width;
+        logicalHeight = rect.height;
+        const ctx = context;
+        const w = logicalWidth;
+        const h = logicalHeight;
+        const compact = w < 620;
+        ctx.clearRect(0, 0, w, h);
+        const points = canvasPoints(w, h);
+        const nodeWidth = compact ? Math.min(w - 60, 230) : Math.min(148, w / 5.2);
+        const nodeHeight = compact ? 43 : 70;
+        const activeColor = simulationState === "rejected" ? "#ff7b72" : "#00ffcc";
+        const lineColor = simulationState === "idle" ? "rgba(139,148,158,.32)" : "rgba(0,255,204,.55)";
+
+        ctx.save();
+        ctx.lineWidth = 1.25;
+        ctx.strokeStyle = lineColor;
+        ctx.setLineDash(simulationState === "idle" ? [4, 6] : []);
+        for (let i = 0; i < points.length - 1; i++) {
+          const a = points[i], b = points[i + 1];
+          ctx.beginPath();
+          if (compact) {
+            ctx.moveTo(a.x, a.y + nodeHeight / 2 + 2);
+            ctx.lineTo(b.x, b.y - nodeHeight / 2 - 2);
+          } else {
+            ctx.moveTo(a.x + nodeWidth / 2 + 2, a.y);
+            ctx.lineTo(b.x - nodeWidth / 2 - 2, b.y);
+          }
+          ctx.stroke();
+        }
+        ctx.setLineDash([]);
+
+        if (simulationState === "pending" || simulationState === "approved") {
+          const duration = simulationState === "pending" ? 3600 : 2800;
+          let progress = (timestamp % duration) / duration;
+          if (simulationState === "approved") progress = 1 - progress;
+          const segments = points.length - 1;
+          const scaled = Math.min(progress, 0.999) * segments;
+          const segment = Math.floor(scaled);
+          const t = scaled - segment;
+          const p1 = points[segment], p2 = points[segment + 1];
+          const px = p1.x + (p2.x - p1.x) * t;
+          const py = p1.y + (p2.y - p1.y) * t;
+          ctx.shadowColor = activeColor;
+          ctx.shadowBlur = 15;
+          ctx.fillStyle = activeColor;
+          ctx.beginPath();
+          ctx.arc(px, py, 4, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        }
+
+        points.forEach((point, index) => {
+          const active = simulationState === "approved" || (simulationState === "pending" && index <= 3) || (simulationState === "rejected" && index < 3);
+          const x = point.x - nodeWidth / 2;
+          const y = point.y - nodeHeight / 2;
+          roundedRect(ctx, x, y, nodeWidth, nodeHeight, 8);
+          ctx.fillStyle = active ? "rgba(0,255,204,.055)" : "rgba(14,20,27,.94)";
+          ctx.fill();
+          ctx.lineWidth = 1;
+          ctx.strokeStyle = active ? activeColor : "rgba(139,148,158,.3)";
+          ctx.stroke();
+          ctx.fillStyle = active ? activeColor : "#7b8997";
+          ctx.beginPath();
+          ctx.arc(x + 14, y + nodeHeight / 2, 3, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.textAlign = "left";
+          ctx.textBaseline = "middle";
+          ctx.font = "600 8px ui-monospace, SFMono-Regular, Consolas, monospace";
+          ctx.fillStyle = active ? "#e6edf3" : "#a1adba";
+          const label = labels[index];
+          const maxChars = Math.max(8, Math.floor((nodeWidth - 32) / 5.4));
+          const display = label.length > maxChars ? label.slice(0, maxChars - 1) + "…" : label;
+          ctx.fillText(display, x + 23, y + nodeHeight / 2);
+        });
+        ctx.restore();
+
+        if (!reduceMotion.matches) frameId = window.requestAnimationFrame(draw);
+      }
+
+      if (canvas && context) {
+        if ("ResizeObserver" in window) {
+          const observer = new ResizeObserver(() => draw(performance.now()));
+          observer.observe(canvas);
+        } else {
+          window.addEventListener("resize", () => draw(performance.now()));
+        }
+        if (reduceMotion.matches) draw(0);
+        else frameId = window.requestAnimationFrame(draw);
+        reduceMotion.addEventListener?.("change", () => {
+          if (reduceMotion.matches) {
+            window.cancelAnimationFrame(frameId);
+            draw(0);
+          } else {
+            frameId = window.requestAnimationFrame(draw);
+          }
+        });
+      }
+    })();
+  </script>
+</body>
+</html>
