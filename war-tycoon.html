@@ -1,0 +1,506 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0d1117">
+  <meta name="description" content="A documentation and safety-first showcase for War Tycoon Auto Farmer, a client-side Roblox Lua automation project.">
+  <title>War Tycoon Auto Farmer — The Joyboy Labs</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0d1117;
+      --bg-deep: #090d12;
+      --panel: #111820;
+      --text: #e6edf3;
+      --muted: #a1adba;
+      --subtle: #788694;
+      --line: rgba(139,148,158,.2);
+      --line-strong: rgba(139,148,158,.34);
+      --cyan: #00ffcc;
+      --blue: #58a6ff;
+      --amber: #e3b341;
+      --red: #ff7b72;
+      --violet: #c3a1ff;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      --max: 1160px;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 118px; background: var(--bg); }
+    body { min-width: 320px; margin: 0; color: var(--text); background: radial-gradient(ellipse at 15% -14%, rgba(0,255,204,.075), transparent 34rem), radial-gradient(ellipse at 100% 44%, rgba(88,166,255,.05), transparent 38rem), var(--bg); font: 15px/1.7 var(--sans); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; }
+    :focus-visible { outline: 2px solid var(--cyan); outline-offset: 4px; }
+    ::selection { color: #07120f; background: var(--cyan); }
+    .wrap { width: min(var(--max), calc(100% - 44px)); margin-inline: auto; }
+    .skip-link { position: fixed; z-index: 100; top: 10px; left: 12px; padding: 9px 13px; transform: translateY(-150%); border-radius: 7px; color: #06120f; background: var(--cyan); font-weight: 700; }
+    .skip-link:focus { transform: translateY(0); }
+    .site-header { position: sticky; z-index: 20; top: 0; border-bottom: 1px solid rgba(139,148,158,.14); background: rgba(9,13,18,.9); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+    .header-inner { display: grid; width: min(var(--max), calc(100% - 44px)); grid-template-rows: 58px 44px; justify-items: center; margin-inline: auto; padding-top: 5px; }
+    .brand { display: grid; grid-row: 1; justify-items: center; align-content: center; line-height: 1.15; }
+    .brand-name { color: var(--text); font: 700 15px/1.2 var(--mono); letter-spacing: -.055em; animation: reveal 700ms ease-out both; }
+    .brand-tag { margin-top: 4px; color: var(--subtle); font: 8px/1.2 var(--mono); letter-spacing: .12em; }
+    @keyframes reveal { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    .primary-nav { display: flex; grid-row: 2; align-items: center; justify-self: center; gap: 4px; }
+    .primary-nav a { position: relative; padding: 8px 10px; border-radius: 6px; color: var(--muted); font-size: 10px; transition: color 150ms ease, background 150ms ease; }
+    .primary-nav a:hover, .primary-nav a[aria-current="page"] { color: var(--text); background: rgba(255,255,255,.045); }
+    .primary-nav a[aria-current="page"]::after { position: absolute; right: 11px; bottom: 3px; left: 11px; height: 1px; background: var(--cyan); content: ""; }
+    main { min-height: 70vh; }
+    .hero { display: grid; grid-template-columns: minmax(0,1.4fr) minmax(260px,.75fr); align-items: center; gap: clamp(28px,6vw,76px); padding-block: 62px 44px; }
+    .eyebrow, .section-label { margin: 0; color: var(--cyan); font: 600 9px/1.5 var(--mono); letter-spacing: .12em; }
+    .eyebrow { display: flex; align-items: center; gap: 9px; }
+    .status-dot { width: 7px; height: 7px; flex: 0 0 7px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 10px rgba(0,255,204,.45); }
+    h1, h2, h3, h4 { font-family: var(--mono); font-weight: 560; letter-spacing: -.05em; }
+    h1 { margin: 17px 0 15px; font-size: clamp(2.45rem,6.1vw,4.6rem); line-height: 1.04; }
+    h2 { letter-spacing: -.055em; }
+    .accent { color: var(--cyan); }
+    .hero-lead { max-width: 690px; margin: 0; color: var(--muted); font-size: clamp(14px,1.6vw,17px); line-height: 1.8; }
+    .badge-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 21px; }
+    .badge { padding: 5px 8px; border: 1px solid var(--line); border-radius: 5px; color: var(--subtle); background: rgba(255,255,255,.015); font: 8px/1.4 var(--mono); letter-spacing: .08em; }
+    .source-actions { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 21px; }
+    .source-button { display: inline-flex; min-height: 36px; align-items: center; justify-content: center; gap: 8px; padding: 0 12px; border: 1px solid rgba(88,166,255,.28); border-radius: 6px; color: var(--blue); background: rgba(88,166,255,.06); font: 600 9px var(--mono); transition: border-color 140ms ease, background 140ms ease; }
+    .source-button:hover { border-color: var(--blue); background: rgba(88,166,255,.12); }
+    .hero-card { padding: 19px; border: 1px solid var(--line); border-radius: 10px; background: linear-gradient(145deg,rgba(17,24,32,.95),rgba(12,17,23,.84)); box-shadow: 0 20px 55px rgba(0,0,0,.18); }
+    .hero-card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 13px; border-bottom: 1px solid var(--line); }
+    .hero-card-head span:first-child { color: var(--subtle); font: 8px var(--mono); letter-spacing: .1em; }
+    .status-pill { padding: 4px 7px; border: 1px solid rgba(227,179,65,.3); border-radius: 4px; color: var(--amber); font: 8px var(--mono); letter-spacing: .07em; }
+    .hero-card h2 { margin: 16px 0 7px; font-size: 15px; }
+    .hero-card p { margin: 0; color: var(--muted); font-size: 10px; line-height: 1.7; }
+    .hero-specs { display: grid; gap: 9px; margin: 16px 0 0; padding: 0; list-style: none; }
+    .hero-specs li { display: flex; justify-content: space-between; gap: 12px; color: var(--subtle); font: 8px var(--mono); }
+    .hero-specs strong { color: var(--text); font-weight: 500; text-align: right; }
+    .warning { display: grid; grid-template-columns: 23px 1fr; gap: 11px; margin-top: 23px; padding: 14px 16px; border: 1px solid rgba(227,179,65,.28); border-radius: 8px; background: rgba(227,179,65,.045); }
+    .warning-mark { display: grid; width: 22px; height: 22px; place-items: center; border: 1px solid rgba(227,179,65,.5); border-radius: 50%; color: var(--amber); font: 11px var(--mono); }
+    .warning p { margin: 0; color: var(--muted); font-size: 10px; line-height: 1.75; }
+    .warning strong { color: #ead392; }
+    .section { padding-block: 39px 52px; }
+    .section-head { display: grid; grid-template-columns: minmax(0,1fr) minmax(220px,.72fr); align-items: end; gap: 27px; margin-bottom: 21px; }
+    .section-head h2 { margin: 8px 0 0; font-size: clamp(1.4rem,2.8vw,1.95rem); line-height: 1.3; }
+    .section-intro { max-width: 490px; margin: 0 0 2px; color: var(--muted); font-size: 11px; line-height: 1.75; }
+    .panel { border: 1px solid var(--line); border-radius: 9px; background: rgba(16,23,30,.72); }
+    .demo-shell { overflow: hidden; border: 1px solid rgba(88,166,255,.24); border-radius: 10px; background: linear-gradient(145deg,rgba(17,24,32,.95),rgba(11,16,22,.96)); }
+    .demo-top { display: flex; align-items: center; justify-content: space-between; gap: 13px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+    .demo-title { color: var(--text); font: 10px var(--mono); }
+    .mock-pill { padding: 4px 7px; border: 1px solid rgba(227,179,65,.26); border-radius: 4px; color: var(--amber); font: 8px var(--mono); letter-spacing: .06em; }
+    .demo-grid { display: grid; grid-template-columns: minmax(0,1.5fr) minmax(240px,.72fr); }
+    .canvas-frame { min-width: 0; padding: 12px; border-right: 1px solid var(--line); }
+    #flowCanvas { display: block; width: 100%; height: 260px; border: 1px solid rgba(139,148,158,.12); border-radius: 7px; background: radial-gradient(ellipse at 50% 50%,rgba(22,36,50,.45),rgba(8,13,18,.5)); }
+    .demo-controls { display: flex; flex-direction: column; gap: 12px; padding: 16px; }
+    .state-box { padding: 12px; border: 1px solid var(--line); border-radius: 7px; background: rgba(8,13,18,.6); }
+    .state-label { display: block; color: var(--subtle); font: 8px var(--mono); letter-spacing: .1em; }
+    .state-title { display: block; margin-top: 5px; color: var(--blue); font: 600 12px var(--mono); }
+    .state-description { margin: 5px 0 0; color: var(--muted); font-size: 9px; line-height: 1.65; }
+    .control-buttons { display: grid; gap: 7px; }
+    .demo-button { display: inline-flex; min-height: 35px; align-items: center; justify-content: center; padding: 0 10px; border: 1px solid var(--line-strong); border-radius: 6px; color: var(--text); background: #121b24; font-size: 9px; font-weight: 650; cursor: pointer; transition: border-color 140ms ease, color 140ms ease, background 140ms ease; }
+    .demo-button:hover { border-color: var(--cyan); color: var(--cyan); background: rgba(0,255,204,.05); }
+    .demo-button.primary { border-color: rgba(0,255,204,.36); color: var(--cyan); background: rgba(0,255,204,.07); }
+    .demo-button.primary:hover { background: rgba(0,255,204,.13); }
+    .event-log { display: grid; gap: 5px; max-height: 89px; overflow: auto; margin: auto 0 0; padding: 0; list-style: none; }
+    .event-log li { color: var(--subtle); font: 8px/1.5 var(--mono); }
+    .event-log li::before { margin-right: 7px; color: var(--cyan); content: ">"; }
+    .demo-foot { padding: 10px 14px; border-top: 1px solid var(--line); color: var(--subtle); font-size: 9px; line-height: 1.6; }
+    .demo-foot strong { color: var(--amber); }
+    .two-col { display: grid; grid-template-columns: minmax(0,1.05fr) minmax(0,.95fr); gap: 13px; }
+    .content-card { padding: 18px; border: 1px solid var(--line); border-radius: 8px; background: rgba(17,24,32,.62); }
+    .content-card h3 { margin: 0 0 10px; font-size: 13px; }
+    .content-card p { margin: 0 0 11px; color: var(--muted); font-size: 10px; line-height: 1.75; }
+    .content-card p:last-child { margin-bottom: 0; }
+    .steps { display: grid; gap: 9px; margin: 0; padding: 0; list-style: none; counter-reset: quick; }
+    .steps li { display: grid; grid-template-columns: 25px 1fr; gap: 9px; color: var(--muted); font-size: 10px; line-height: 1.7; counter-increment: quick; }
+    .steps li::before { display: grid; width: 23px; height: 23px; place-items: center; border: 1px solid rgba(0,255,204,.25); border-radius: 5px; color: var(--cyan); content: counter(quick,decimal-leading-zero); font: 8px var(--mono); }
+    .steps strong { color: var(--text); }
+    .code-card { overflow: hidden; border: 1px solid var(--line); border-radius: 8px; background: var(--bg-deep); }
+    .code-toolbar { display: flex; min-height: 38px; align-items: center; justify-content: space-between; gap: 10px; padding: 5px 9px 5px 12px; border-bottom: 1px solid rgba(139,148,158,.13); background: rgba(255,255,255,.015); }
+    .code-file { display: inline-flex; align-items: center; gap: 7px; color: var(--subtle); font: 8px var(--mono); }
+    .file-dot { width: 6px; height: 6px; border-radius: 2px; background: var(--blue); }
+    .copy-button { display: inline-flex; min-height: 26px; align-items: center; gap: 5px; padding: 0 8px; border: 1px solid var(--line-strong); border-radius: 5px; color: var(--muted); background: #121a22; font-size: 8px; font-weight: 600; cursor: pointer; }
+    .copy-button:hover { border-color: var(--cyan); color: var(--cyan); }
+    .copy-button.is-copied { border-color: rgba(0,255,204,.4); color: var(--cyan); }
+    .copy-button.is-error { border-color: rgba(255,123,114,.4); color: var(--red); }
+    pre { max-width: 100%; overflow: auto; margin: 0; scrollbar-color: #35424e #090d12; scrollbar-width: thin; }
+    pre code { display: block; min-width: max-content; padding: 12px 14px; color: #d2dae2; font: 9px/1.7 var(--mono); white-space: pre; }
+    .inline-code { padding: 1px 5px; border: 1px solid var(--line); border-radius: 3px; color: var(--blue); background: var(--bg-deep); font: .9em var(--mono); }
+    .tok-call { color: #d2a8ff; }
+    .tok-str { color: #a5d6ff; }
+    .tok-comment { color: #778694; font-style: italic; }
+    .table-wrap { overflow: auto; border: 1px solid var(--line); border-radius: 8px; background: rgba(17,24,32,.52); }
+    table { width: 100%; border-collapse: collapse; text-align: left; }
+    th, td { padding: 10px 12px; border-bottom: 1px solid rgba(139,148,158,.13); vertical-align: top; }
+    th { color: var(--subtle); background: rgba(255,255,255,.02); font: 8px var(--mono); letter-spacing: .09em; text-transform: uppercase; }
+    td { color: var(--muted); font-size: 9px; line-height: 1.65; }
+    tr:last-child td { border-bottom: 0; }
+    td strong { color: var(--text); font-weight: 620; }
+    td code { color: var(--blue); font: 9px var(--mono); white-space: nowrap; }
+    .logic-grid { display: grid; gap: 8px; }
+    .logic-grid details, .troubleshooting details { overflow: hidden; border: 1px solid var(--line); border-radius: 7px; background: rgba(17,24,32,.52); }
+    summary { display: flex; min-height: 45px; align-items: center; justify-content: space-between; gap: 13px; padding: 10px 13px; color: var(--text); cursor: pointer; list-style: none; font: 9px var(--mono); }
+    summary::-webkit-details-marker { display: none; }
+    summary::after { color: var(--cyan); content: "+"; font: 15px var(--mono); }
+    details[open] summary::after { content: "−"; }
+    .detail-body { padding: 0 13px 13px; border-top: 1px solid rgba(139,148,158,.12); }
+    .detail-body p, .detail-body li { color: var(--muted); font-size: 9px; line-height: 1.75; }
+    .detail-body p { margin: 10px 0 0; }
+    .detail-body ul, .detail-body ol { display: grid; gap: 5px; margin: 9px 0 0; padding-left: 18px; }
+    .detail-body strong { color: var(--text); font-weight: 620; }
+    .detail-body code { color: var(--blue); font: .92em var(--mono); }
+    .troubleshooting { display: grid; gap: 8px; }
+    .risk-card { border: 1px solid rgba(255,123,114,.23); border-radius: 8px; background: rgba(255,123,114,.035); }
+    .risk-card h3 { margin: 0 0 9px; color: #ffc1bb; font-size: 12px; }
+    .risk-card p { margin: 0 0 9px; color: var(--muted); font-size: 10px; line-height: 1.75; }
+    .risk-card p:last-child { margin-bottom: 0; }
+    .source-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
+    .source-card { display: flex; min-height: 98px; flex-direction: column; justify-content: space-between; gap: 12px; padding: 15px; border: 1px solid var(--line); border-radius: 8px; background: rgba(17,24,32,.55); transition: border-color 140ms ease, transform 140ms ease; }
+    .source-card:hover { transform: translateY(-2px); border-color: rgba(88,166,255,.5); }
+    .source-card span:first-child { color: var(--subtle); font: 8px var(--mono); letter-spacing: .08em; }
+    .source-card strong { color: var(--blue); font: 10px var(--mono); overflow-wrap: anywhere; }
+    .source-note { margin: 12px 0 0; color: var(--subtle); font-size: 9px; line-height: 1.7; }
+    .site-footer { margin-top: 18px; border-top: 1px solid var(--line); background: rgba(8,12,17,.56); }
+    .footer-inner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 18px; padding-block: 17px; }
+    .footer-brand { color: var(--text); font: 600 10px var(--mono); }
+    .footer-inner p, .footer-inner span { margin: 0; color: var(--subtle); font-size: 9px; }
+    .back-top { color: var(--cyan) !important; font: 9px var(--mono) !important; }
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; gap: 23px; padding-top: 45px; }
+      .hero-card { max-width: 650px; }
+      .demo-grid { grid-template-columns: 1fr; }
+      .canvas-frame { border-right: 0; border-bottom: 1px solid var(--line); }
+      .demo-controls { display: grid; grid-template-columns: minmax(0,.8fr) minmax(210px,1fr); align-items: start; }
+      .control-buttons { grid-column: 2; grid-row: 1 / span 2; }
+      .event-log { grid-column: 1; grid-row: 2; margin-top: -3px; }
+    }
+    @media (max-width: 650px) {
+      .wrap, .header-inner { width: min(100% - 32px,var(--max)); }
+      .header-inner { min-height: 68px; grid-template-rows: auto auto; gap: 7px; padding-block: 8px 9px; }
+      .brand-tag { display: none; }
+      .primary-nav { width: 100%; flex-wrap: wrap; justify-content: center; gap: 1px; }
+      .primary-nav a { padding: 7px 7px; font-size: 8px; }
+      .hero { padding-block: 38px 27px; }
+      .section { padding-block: 31px 40px; }
+      .section-head { grid-template-columns: 1fr; gap: 8px; }
+      .two-col, .source-grid { grid-template-columns: 1fr; }
+      #flowCanvas { height: 350px; }
+      .demo-controls { display: flex; }
+      .event-log { margin-top: 0; }
+      .demo-top { align-items: flex-start; flex-direction: column; }
+      .table-wrap { margin-inline: -1px; }
+      th, td { padding: 9px 10px; }
+      .footer-inner { align-items: flex-start; flex-direction: column; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="index.html" aria-label="The Joyboy Labs home"><span class="brand-name">The Joyboy Labs</span><span class="brand-tag">DEV // SECURITY // CREATIVE</span></a>
+      <nav class="primary-nav" aria-label="Primary navigation">
+        <a href="index.html">Home</a>
+        <a href="roblox.html">Roblox Luau</a>
+        <a href="python.html">Python Tools</a>
+        <a href="cyber.html">Cyber Security</a>
+        <a href="pc-unlocker.html">PC Unlocker</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero wrap" aria-labelledby="page-title">
+      <div>
+        <p class="eyebrow"><span class="status-dot"></span> ROBLOX PROJECT SHOWCASE // LUA</p>
+        <h1 id="page-title">War Tycoon<br><span class="accent">Auto Farmer</span></h1>
+        <p class="hero-lead">A client-side automation project built around visible game-interface labels and prompts. This page documents the supplied README; it does not connect to Roblox or run the script.</p>
+        <div class="badge-row" aria-label="Project features">
+          <span class="badge">CASH COLLECTION</span><span class="badge">PURCHASE SCANNING</span><span class="badge">REBIRTH TARGETS</span><span class="badge">BARREL RECOVERY</span>
+        </div>
+        <div class="source-actions">
+          <a class="source-button" href="https://github.com/ujjal-saha/Roblox-war-tycoon/blob/main/war%20tycoon.lua" target="_blank" rel="noopener noreferrer">View source file <span aria-hidden="true">↗</span></a>
+          <a class="source-button" href="https://raw.githubusercontent.com/ujjal-saha/Roblox-war-tycoon/refs/heads/main/war%20tycoon.lua" target="_blank" rel="noopener noreferrer">View raw source <span aria-hidden="true">↗</span></a>
+        </div>
+        <div class="warning" role="note">
+          <span class="warning-mark" aria-hidden="true">!</span>
+          <p><strong>Read the code and check the rules before running it.</strong> This is third-party client-side automation, depends on executor-specific APIs, and may violate Roblox or experience rules. It can put account access at risk. The loader follows the mutable <code class="inline-code">main</code> branch. This web page never executes it.</p>
+        </div>
+      </div>
+      <aside class="hero-card" aria-label="Project summary">
+        <div class="hero-card-head"><span>PROJECT PROFILE / 002</span><span class="status-pill">COMMUNITY SCRIPT</span></div>
+        <h2>Scan. Prioritize. Report.</h2>
+        <p>The README describes a local HUD, a purchase cycle, optional rebirth targets, and oil-barrel recovery routines.</p>
+        <ul class="hero-specs">
+          <li><span>LANGUAGE</span><strong>Lua</strong></li>
+          <li><span>INTERFACE</span><strong>Client-side game UI</strong></li>
+          <li><span>BUYER STATE</span><strong>OFF at startup</strong></li>
+          <li><span>REBIRTH TARGET</span><strong>0–12</strong></li>
+          <li><span>PAGE BEHAVIOR</span><strong>Documentation only</strong></li>
+        </ul>
+      </aside>
+    </section>
+
+    <section class="section wrap" aria-labelledby="demo-title">
+      <div class="section-head">
+        <div><p class="section-label">// LOCAL FLOW SIMULATOR</p><h2 id="demo-title">Explore the logic path</h2></div>
+        <p class="section-intro">Step through a made-up example of the README's flow. The drawing and controls are local to this page—there is no Roblox session, game data, or script execution.</p>
+      </div>
+      <div class="demo-shell">
+        <div class="demo-top"><span class="demo-title">Auto Farmer / mock state flow</span><span class="mock-pill">SIMULATED · NO GAME CONNECTION</span></div>
+        <div class="demo-grid">
+          <div class="canvas-frame"><canvas id="flowCanvas" role="img" aria-label="Local simulation diagram: player interface, cash and labels, purchase scan, priority routines, and HUD status"></canvas></div>
+          <div class="demo-controls">
+            <div class="state-box" aria-live="polite"><span class="state-label">SIMULATION STATE</span><strong class="state-title" id="stateTitle">Idle / ready</strong><p class="state-description" id="stateDescription">Choose a mock step to preview how the documented routines are organized.</p></div>
+            <div class="control-buttons"><button class="demo-button primary" id="nextStep" type="button">Next mock step</button><button class="demo-button" id="barrelStep" type="button">Simulate barrel recovery</button><button class="demo-button" id="resetDemo" type="button">Reset demo</button></div>
+            <ul class="event-log" id="eventLog" aria-label="Simulation event log" aria-live="polite"><li>Ready. Nothing is connected.</li></ul>
+          </div>
+        </div>
+        <div class="demo-foot"><strong>Boundary:</strong> no network calls, executor APIs, Roblox inputs, teleporting, or game actions are used by this demo.</div>
+      </div>
+    </section>
+
+    <section class="section wrap" id="quick-start" aria-labelledby="quick-title">
+      <div class="section-head"><div><p class="section-label">// QUICK START</p><h2 id="quick-title">Inspect first. Proceed carefully.</h2></div><p class="section-intro">The loader shown below is copied from the supplied README. It is not invoked by this page and downloads whatever code is on the linked branch when you run it.</p></div>
+      <div class="two-col">
+        <article class="content-card">
+          <h3>README loader</h3>
+          <p>Review the linked source and your platform's rules before using any client-side automation. The code depends on non-standard functions provided by compatible third-party environments.</p>
+          <div class="code-card"><div class="code-toolbar"><span class="code-file"><i class="file-dot"></i> LUA / REMOTE LOADER</span><button class="copy-button" type="button" aria-label="Copy Lua loader"><span class="copy-label">Copy</span></button></div><pre><code>loadstring(game:HttpGet("https://raw.githubusercontent.com/ujjal-saha/Roblox-war-tycoon/refs/heads/main/war%20tycoon.lua"))()</code></pre></div>
+          <p style="margin-top:12px">The URL follows <code class="inline-code">main</code>, so it is mutable. A copied loader is not a pinned or verified release.</p>
+        </article>
+        <article class="content-card">
+          <h3>Documented setup sequence</h3>
+          <ol class="steps">
+            <li>Join War Tycoon and wait for the base and player interface to load.</li>
+            <li>Read the current source and confirm automation is allowed for your account and the experience.</li>
+            <li>If you proceed in a compatible environment, configure the target in the draggable Auto Buyer HUD. The script starts OFF.</li>
+            <li>Use the manual airdrop test control only when you understand its effects and it is permitted.</li>
+          </ol>
+          <p style="margin-top:12px">This is not a normal Roblox Studio <code class="inline-code">Script</code> or <code class="inline-code">LocalScript</code>; the README describes executor/client-specific APIs.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section wrap" aria-labelledby="hud-title">
+      <div class="section-head"><div><p class="section-label">// HUD CONTROLS</p><h2 id="hud-title">What the local window reports</h2></div><p class="section-intro">The labels below reflect the supplied README, not a live interface rendered on this page.</p></div>
+      <div class="table-wrap"><table><thead><tr><th>Control</th><th>Documented behavior</th></tr></thead><tbody>
+        <tr><td><strong>Top bar</strong></td><td>Drag the window to reposition it.</td></tr>
+        <tr><td><strong>ON / OFF</strong></td><td>Starts or stops the main automation loop. Completion can still update while OFF, but its automatic completion key action requires ON.</td></tr>
+        <tr><td><strong>Rebirths</strong></td><td>Enter a target from 0 to 12; it is applied when the text box loses focus. A target of 0 disables rebirth purchases.</td></tr>
+        <tr><td><strong>Run airdrop now (test)</strong></td><td>Requests the oil-barrel/airdrop handling routine. The routine still searches for the game's floating Oil and Airdrop labels.</td></tr>
+        <tr><td><strong>Completion readout</strong></td><td>Displays a percentage parsed from the local game interface; the README says the HUD updates about twice per second.</td></tr>
+        <tr><td><strong>Status line</strong></td><td>Reports activity such as scanning, collecting, recovering, or searching for the exchange.</td></tr>
+      </tbody></table></div>
+    </section>
+
+    <section class="section wrap" aria-labelledby="logic-title">
+      <div class="section-head"><div><p class="section-label">// HOW THE LOGIC WORKS</p><h2 id="logic-title">Eight cooperating routines</h2></div><p class="section-intro">Open a topic for a concise, README-derived explanation. Behavior depends on visible interface text, loaded objects, and the execution environment.</p></div>
+      <div class="logic-grid">
+        <details><summary>01 / Startup and lifecycle</summary><div class="detail-body"><p>The script obtains the local player and <code>PlayerGui</code>, builds a draggable <code>ScreenGui</code>, removes a previous HUD, disconnects stored connections, and increments a shared run ID. Background loops check that ID so an older run can stop when replaced. The buyer starts OFF.</p></div></details>
+        <details><summary>02 / Cash Collector and purchase scan</summary><div class="detail-body"><p>The scanner looks through visible <code>BillboardGui</code> and <code>SurfaceGui</code> text in loaded workspace and player UI, resolves an adornee/parent to a part, and checks ownership clues. It keeps a still-valid selected collector or chooses a nearby candidate; its position is remembered as <code>lastCollectorPos</code>.</p><p>Cash is read from likely <code>leaderstats</code> values (cash, money, coins) or visible dollar-formatted HUD text. Price parsing supports plain values and <code>k</code>, <code>m</code>, <code>b</code>, and <code>t</code>. Excluded labels include exchange-related purchase text. Affordable buttons are sorted cheapest-first; after each visit, disappearance of the sign or a balance change is used as a success clue. Failed buys are retried up to the configured attempt count.</p></div></details>
+        <details><summary>03 / Rebirth target scan</summary><div class="detail-body"><p>The scanner looks for short interface labels with a number followed by “Rebirth,” filters likely information signs and long instructions, and checks base ownership or proximity to the remembered collector. A nearby pad can optionally be required.</p><p>Targets are ordered from the smallest rebirth number. Off-screen targets may be remembered while the script requests streaming and scans again. Failed targets can be temporarily skipped; the accepted ceiling is 12, while 0 disables this automation.</p></div></details>
+        <details><summary>04 / Completion and confirmation safeguards</summary><div class="detail-body"><p>A local <code>PlayerGui</code> reader looks for “Completion” and a percentage in one label, a shared UI container, or a nearby percentage label. At 100%, one action is armed for that cycle. It waits for Auto Buyer ON, idle delivery/airdrop/barrel routines, and readable cash of at least $500,000 (the amount shown in the supplied confirmation screenshot).</p><ol><li>Hold E for two seconds and release.</li><li>Find a visible Rebirth confirmation with a readable <code>Cost:</code>.</li><li>Re-check cash against the dialog cost; cancel when available and wait if funds are insufficient.</li><li>Click Confirm only after the amount is met; increment a positive target only after the dialog closes, capped at 12.</li></ol><p>If the dialog, cost, or close event cannot be identified, the target is not incremented. A target of 0 or an empty field stays disabled. The completion action rearms after progress drops below 100%.</p></div></details>
+        <details><summary>05 / Oil barrel and airdrop detection</summary><div class="detail-body"><p>Floating <code>BillboardGui</code> text containing Oil or Airdrop plus a distance is used to identify targets. Distance suffixes such as k, m, and b are parsed; a cooldown helps avoid repeated triggers. The manual HUD test requests the same handling sequence.</p><p>After pickup, the associated barrel object is remembered because its floating label may change. A carried or tracked barrel becomes pending delivery and blocks unrelated travel until the delivery attempt is resolved.</p></div></details>
+        <details><summary>06 / Oil Exchange route and fallback</summary><div class="detail-body"><p>With a barrel pending, the script first returns by flight to the remembered Cash Collector area to help stream the base back in. It then searches for exchange clues in labels, prompts, and part/model names.</p><p>The price-bearing “$100,000 PARTS $100,000 OIL EXCHANGE” sign is treated as a purchase pad, not the physical exchanger, and price-bearing purchase cues are filtered. If no usable exchanger is found, it searches for a floating “Resource Collection … studs” marker and ranks candidates by 3D distance from the remembered collector, not by the changing UI distance. If neither marker is usable, delivery may remain unresolved.</p></div></details>
+        <details><summary>07 / Death and dropped-barrel recovery</summary><div class="detail-body"><p>A character-death watcher records a tracked/carried barrel and marks recovery pending. After respawn, it searches for the floating Oil distance label, preferring a target near the last known position. Recovery and exchange work take priority over rebirths and construction-button trips; pending state is cleared only after delivery has been attempted and the dropped label is no longer detected.</p></div></details>
+        <details><summary>08 / Movement and input safeguards</summary><div class="detail-body"><p>Ordinary target travel uses the teleport helper only when there is no pending/carried barrel. During delivery, flight is restricted to the intended collector/exchange route. Flight speed defaults to 50 and slows near the destination.</p><p>The script intentionally does not move equipped Tool objects into the Backpack; it releases a stuck mouse input when enabled instead, avoiding the reported ACS weapon-reference failure associated with reparenting an equipped tool.</p></div></details>
+      </div>
+    </section>
+
+    <section class="section wrap" aria-labelledby="config-title">
+      <div class="section-head"><div><p class="section-label">// CONFIGURATION REFERENCE</p><h2 id="config-title">Defaults from the README</h2></div><p class="section-intro">The README says values are near the top of the source or in the airdrop settings section. These are documentation values, not controls on this page.</p></div>
+      <div class="table-wrap"><table><thead><tr><th>Setting</th><th>Default</th><th>Meaning</th></tr></thead><tbody>
+        <tr><td><code>MAX_REBIRTH</code></td><td>12</td><td>Maximum rebirth target accepted by the HUD.</td></tr>
+        <tr><td><code>REBIRTH_CONFIRM_MIN_CASH</code></td><td>500000</td><td>Minimum cash before the 100%-completion E action starts; the dialog's displayed cost is also checked.</td></tr>
+        <tr><td><code>REBIRTH_CONFIRM_TIMEOUT</code></td><td>8 seconds</td><td>Time allowed for the confirmation dialog to appear or close.</td></tr>
+        <tr><td><code>FLY_SPEED</code></td><td>50</td><td>Flight speed cap; movement slows on approach.</td></tr>
+        <tr><td><code>HOLD_TIME</code></td><td>3 seconds</td><td>Default hold duration for barrel/airdrop/exchange interactions; a longer prompt requirement can extend it.</td></tr>
+        <tr><td><code>MAX_ATTEMPTS</code></td><td>4</td><td>Maximum attempts per purchase/rebirth button before continuing.</td></tr>
+        <tr><td><code>SCAN_INTERVAL</code></td><td>6 seconds</td><td>Interval for automatic Oil/Airdrop label checks.</td></tr>
+        <tr><td><code>AIRDROP_COOLDOWN</code></td><td>20 seconds</td><td>Delay after a completed airdrop routine before another automatic trigger.</td></tr>
+        <tr><td><code>DEBUG</code></td><td>false</td><td>Enables additional diagnostic warnings when true.</td></tr>
+        <tr><td><code>REBIRTH_REQUIRE_PAD</code></td><td>false</td><td>When enabled, require a nearby pad for a rebirth sign.</td></tr>
+      </tbody></table></div>
+      <p class="source-note">The README cautions that faster movement may cause a character reset or drop a carried barrel. Do not assume defaults are safe or supported by every client environment.</p>
+    </section>
+
+    <section class="section wrap" aria-labelledby="trouble-title">
+      <div class="section-head"><div><p class="section-label">// TROUBLESHOOTING</p><h2 id="trouble-title">Common checks</h2></div><p class="section-intro">Summarized from the supplied README. Exact behavior can change with game updates, UI wording, streaming state, or executor compatibility.</p></div>
+      <div class="troubleshooting">
+        <details><summary>No “Cash to collect” found</summary><div class="detail-body"><p>Wait for the base and collector label to load. The scanner relies on visible UI text and ownership clues.</p></div></details>
+        <details><summary>Can't read money</summary><div class="detail-body"><p>Confirm cash is exposed in a likely leaderstats value or visible as dollar-formatted HUD text; otherwise the scan may have no reliable balance.</p></div></details>
+        <details><summary>Oil Exchange not found / barrel still carried</summary><div class="detail-body"><p>Check whether a usable exchanger or Resource Collection fallback marker is streamed in. The fallback may not be the correct deposit point; the README says delivery can remain unresolved if no valid interaction target is recognized.</p></div></details>
+        <details><summary>Dropped barrel is not recovered</summary><div class="detail-body"><p>After respawn, the recovery scanner expects a floating Oil distance label. If it is absent, the target may not be found.</p></div></details>
+        <details><summary>Completion stays at --%</summary><div class="detail-body"><p>The local PlayerGui reader expects recognizable completion text. A server-only value or differently worded interface may not be detected.</p></div></details>
+        <details><summary>100% action waits instead of pressing E</summary><div class="detail-body"><p>According to the README, Auto Buyer must be ON, delivery/airdrop handling idle, and cash readable at or above $500,000 before the confirmation flow begins.</p></div></details>
+        <details><summary>Rebirth confirmation is not clicked</summary><div class="detail-body"><p>The script expects a visible Rebirth dialog with a parseable Cost label and sufficient cash. If the dialog or button differs, it leaves the target unchanged.</p></div></details>
+        <details><summary>Controls do not respond</summary><div class="detail-body"><p>Confirm that the buyer is ON for automated actions and that the environment supports the client APIs the script expects. These APIs are not standard Roblox Studio script features.</p></div></details>
+      </div>
+    </section>
+
+    <section class="section wrap" aria-labelledby="compat-title">
+      <div class="section-head"><div><p class="section-label">// COMPATIBILITY &amp; RISK</p><h2 id="compat-title">Know what this depends on</h2></div><p class="section-intro">This project is independent and is not affiliated with Roblox or the War Tycoon developers.</p></div>
+      <article class="content-card risk-card">
+        <h3>Third-party client automation</h3>
+        <p>The README names APIs such as <code class="inline-code">loadstring</code>, <code class="inline-code">game:HttpGet</code>, <code class="inline-code">getgenv</code>, <code class="inline-code">VirtualInputManager</code>, and optional input/prompt helpers. These are not standard capabilities for ordinary Roblox Studio scripts; support varies by environment.</p>
+        <p>Automating an experience may violate Roblox rules or the creator's rules and can lead to account or access consequences. Use only where explicitly permitted. Review the exact source and remote-code behavior before trusting it; the linked <code class="inline-code">main</code> branch can change.</p>
+        <p>No license or pinned version is specified in the supplied README. Check the repository for current terms and changes before redistribution or use.</p>
+      </article>
+    </section>
+
+    <section class="section wrap" aria-labelledby="source-title">
+      <div class="section-head"><div><p class="section-label">// PROJECT SOURCE</p><h2 id="source-title">Read the current script</h2></div><p class="section-intro">These links go to the repository and raw source supplied with the README. They are external links; the page itself does not fetch or execute either one.</p></div>
+      <div class="source-grid">
+        <a class="source-card" href="https://github.com/ujjal-saha/Roblox-war-tycoon/blob/main/war%20tycoon.lua" target="_blank" rel="noopener noreferrer"><span>GITHUB / SOURCE FILE</span><strong>war tycoon.lua ↗</strong></a>
+        <a class="source-card" href="https://raw.githubusercontent.com/ujjal-saha/Roblox-war-tycoon/refs/heads/main/war%20tycoon.lua" target="_blank" rel="noopener noreferrer"><span>RAW / MUTABLE MAIN BRANCH</span><strong>View current script ↗</strong></a>
+      </div>
+      <p class="source-note">Source URL follows <code class="inline-code">main</code>; it is not a version-pinned release. The page summarizes the supplied README and does not audit the script.</p>
+    </section>
+  </main>
+
+  <footer class="site-footer"><div class="footer-inner wrap"><a class="footer-brand" href="index.html">The Joyboy Labs</a><p>Built for curiosity. Shared with care.</p><a class="back-top" href="#main">BACK TO TOP ↑</a></div></footer>
+
+  <script>
+    (() => {
+      const canvas = document.getElementById("flowCanvas");
+      const ctx = canvas?.getContext("2d");
+      const title = document.getElementById("stateTitle");
+      const description = document.getElementById("stateDescription");
+      const log = document.getElementById("eventLog");
+      const stages = [
+        { title: "Idle / ready", description: "The demo is waiting. It has no connection to Roblox.", label: "READY" },
+        { title: "Read a local UI snapshot", description: "Mock step: look for visible cash and progress labels in the player's interface.", label: "READ UI" },
+        { title: "Sort affordable candidates", description: "Mock step: keep eligible purchase labels and rank affordable prices from low to high.", label: "SCAN" },
+        { title: "Prioritize barrel / rebirth work", description: "Mock step: pending delivery takes priority; the rebirth flow also waits for its documented checks.", label: "PRIORITY" },
+        { title: "Update the HUD status", description: "Mock step: report an activity state. No game action was sent.", label: "REPORT" }
+      ];
+      let current = 0;
+      const nodes = ["PLAYER UI", "CASH + LABELS", "SCAN / SORT", "PRIORITY", "LOCAL HUD"];
+
+      function roundedRect(x, y, w, h, r) {
+        const radius = Math.min(r, w / 2, h / 2);
+        ctx.beginPath();
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + w - radius, y);
+        ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+        ctx.lineTo(x + w, y + h - radius);
+        ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+        ctx.lineTo(x + radius, y + h);
+        ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
+      }
+
+      function draw() {
+        if (!canvas || !ctx) return;
+        const rect = canvas.getBoundingClientRect();
+        if (!rect.width || !rect.height) return;
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = Math.round(rect.width * dpr);
+        canvas.height = Math.round(rect.height * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        const w = rect.width;
+        const h = rect.height;
+        ctx.clearRect(0, 0, w, h);
+        const vertical = w < 520;
+        const activeNode = current === 0 ? -1 : current === 3 ? 3 : Math.min(current, 4);
+        const positions = vertical
+          ? nodes.map((_, i) => ({ x: w / 2, y: 30 + i * ((h - 60) / (nodes.length - 1)) }))
+          : nodes.map((_, i) => ({ x: 55 + i * ((w - 110) / (nodes.length - 1)), y: h / 2 }));
+        const boxW = vertical ? Math.min(w - 54, 220) : Math.min(118, Math.max(86, (w - 85) / 5));
+        const boxH = 44;
+
+        for (let i = 0; i < positions.length - 1; i++) {
+          const a = positions[i];
+          const b = positions[i + 1];
+          ctx.beginPath();
+          if (vertical) {
+            ctx.moveTo(a.x, a.y + boxH / 2);
+            ctx.lineTo(b.x, b.y - boxH / 2);
+          } else {
+            ctx.moveTo(a.x + boxW / 2, a.y);
+            ctx.lineTo(b.x - boxW / 2, b.y);
+          }
+          ctx.strokeStyle = i < activeNode ? "rgba(0,255,204,.72)" : "rgba(139,148,158,.25)";
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        }
+        positions.forEach((point, i) => {
+          const active = i <= activeNode;
+          const x = point.x - boxW / 2;
+          const y = point.y - boxH / 2;
+          roundedRect(x, y, boxW, boxH, 7);
+          ctx.fillStyle = active ? "rgba(0,255,204,.10)" : "rgba(17,24,32,.94)";
+          ctx.fill();
+          ctx.strokeStyle = active ? "rgba(0,255,204,.64)" : "rgba(139,148,158,.27)";
+          ctx.lineWidth = 1;
+          ctx.stroke();
+          ctx.fillStyle = active ? "#cafff3" : "#a1adba";
+          ctx.font = "600 8px SFMono-Regular, Consolas, monospace";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(nodes[i], point.x, point.y, boxW - 12);
+        });
+        canvas.setAttribute("aria-label", `Mock process flow. Current step: ${stages[current].label}. This is a local visualization only.`);
+      }
+
+      function addLog(text) {
+        if (!log) return;
+        const item = document.createElement("li");
+        item.textContent = text;
+        log.prepend(item);
+        while (log.children.length > 4) log.removeChild(log.lastElementChild);
+      }
+
+      function setStage(index, note) {
+        current = index;
+        const stage = stages[index];
+        if (title) title.textContent = stage.title;
+        if (description) description.textContent = stage.description;
+        addLog(note || stage.label + " — local simulation only");
+        draw();
+      }
+
+      document.getElementById("nextStep")?.addEventListener("click", () => {
+        const next = current >= stages.length - 1 ? 1 : current + 1;
+        setStage(next, "Mock step: " + stages[next].label);
+      });
+      document.getElementById("barrelStep")?.addEventListener("click", () => {
+        setStage(3, "Mock recovery priority selected; no character or barrel was moved.");
+      });
+      document.getElementById("resetDemo")?.addEventListener("click", () => {
+        setStage(0, "Reset complete. No game connection was made.");
+      });
+      document.querySelectorAll(".copy-button").forEach((button) => {
+        button.addEventListener("click", async () => {
+          const code = button.closest(".code-card")?.querySelector("pre code");
+          const label = button.querySelector(".copy-label");
+          if (!code || !label) return;
+          const originalLabel = label.textContent;
+          const originalAria = button.dataset.originalAria || button.getAttribute("aria-label") || "Copy code";
+          button.dataset.originalAria = originalAria;
+          try {
+            await navigator.clipboard.writeText(code.textContent.trim());
+            label.textContent = "Copied";
+            button.classList.add("is-copied");
+            button.setAttribute("aria-label", "Copied to clipboard");
+          } catch {
+            label.textContent = "Copy failed";
+            button.classList.add("is-error");
+            button.setAttribute("aria-label", "Copy failed");
+          }
+          window.setTimeout(() => {
+            label.textContent = originalLabel;
+            button.classList.remove("is-copied", "is-error");
+            button.setAttribute("aria-label", originalAria);
+          }, 1600);
+        });
+      });
+      draw();
+      if ("ResizeObserver" in window && canvas) new ResizeObserver(draw).observe(canvas);
+      else window.addEventListener("resize", draw, { passive: true });
+    })();
+  </script>
+</body>
+</html>
