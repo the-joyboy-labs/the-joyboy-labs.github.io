@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0d1117">
+  <meta name="description" content="Privacy and consent review for the Web Snap Filter project description, with a safe simulated consent flow.">
+  <title>Web Snap Filter — Privacy Review | The Joyboy Labs</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0d1117;
+      --bg-deep: #090d12;
+      --panel: #111820;
+      --text: #e6edf3;
+      --muted: #a1adba;
+      --subtle: #788694;
+      --line: rgba(139,148,158,.2);
+      --line-strong: rgba(139,148,158,.34);
+      --cyan: #00ffcc;
+      --blue: #58a6ff;
+      --amber: #e3b341;
+      --red: #ff7b72;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      --max: 1160px;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 118px; background: var(--bg); }
+    body { min-width: 320px; margin: 0; color: var(--text); background: radial-gradient(ellipse at 18% -14%,rgba(0,255,204,.065),transparent 34rem),radial-gradient(ellipse at 100% 45%,rgba(88,166,255,.045),transparent 38rem),var(--bg); font: 15px/1.7 var(--sans); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; }
+    :focus-visible { outline: 2px solid var(--cyan); outline-offset: 4px; }
+    ::selection { color: #07120f; background: var(--cyan); }
+    .wrap { width: min(var(--max),calc(100% - 44px)); margin-inline: auto; }
+    .skip-link { position: fixed; z-index: 100; top: 10px; left: 12px; padding: 9px 13px; transform: translateY(-150%); border-radius: 7px; color: #06120f; background: var(--cyan); font-weight: 700; }
+    .skip-link:focus { transform: translateY(0); }
+    .site-header { position: sticky; z-index: 20; top: 0; border-bottom: 1px solid rgba(139,148,158,.14); background: rgba(9,13,18,.9); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+    .header-inner { display: grid; width: min(var(--max),calc(100% - 44px)); grid-template-rows: 58px 44px; justify-items: center; margin-inline: auto; padding-top: 5px; }
+    .brand { display: grid; grid-row: 1; justify-items: center; align-content: center; line-height: 1.15; }
+    .brand-name { color: var(--text); font: 700 15px/1.2 var(--mono); letter-spacing: -.055em; animation: reveal 700ms ease-out both; }
+    .brand-tag { margin-top: 4px; color: var(--subtle); font: 8px/1.2 var(--mono); letter-spacing: .12em; }
+    @keyframes reveal { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    .primary-nav { display: flex; grid-row: 2; align-items: center; justify-self: center; gap: 3px; }
+    .primary-nav a { position: relative; padding: 8px 8px; border-radius: 6px; color: var(--muted); font-size: 8px; transition: color 150ms ease,background 150ms ease; }
+    .primary-nav a:hover, .primary-nav a[aria-current="page"] { color: var(--text); background: rgba(255,255,255,.045); }
+    .primary-nav a[aria-current="page"]::after { position: absolute; right: 9px; bottom: 3px; left: 9px; height: 1px; background: var(--cyan); content: ""; }
+    main { min-height: 70vh; }
+    .hero { display: grid; grid-template-columns: minmax(0,1.4fr) minmax(260px,.75fr); align-items: center; gap: clamp(28px,6vw,72px); padding-block: 58px 39px; }
+    .eyebrow, .section-label { margin: 0; color: var(--cyan); font: 600 9px/1.5 var(--mono); letter-spacing: .12em; }
+    .eyebrow { display: flex; align-items: center; gap: 9px; }
+    .status-dot { width: 7px; height: 7px; flex: 0 0 7px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 10px rgba(0,255,204,.42); }
+    h1, h2, h3 { font-family: var(--mono); font-weight: 560; letter-spacing: -.05em; }
+    h1 { margin: 17px 0 15px; font-size: clamp(2.5rem,6vw,4.6rem); line-height: 1.04; }
+    .accent { color: var(--cyan); }
+    .hero-lead { max-width: 720px; margin: 0; color: var(--muted); font-size: clamp(14px,1.6vw,17px); line-height: 1.8; }
+    .badge-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 21px; }
+    .badge { padding: 5px 8px; border: 1px solid var(--line); border-radius: 5px; color: var(--subtle); background: rgba(255,255,255,.015); font: 8px/1.4 var(--mono); letter-spacing: .07em; }
+    .risk-banner { display: grid; grid-template-columns: 24px 1fr; gap: 11px; margin-top: 22px; padding: 15px; border: 1px solid rgba(255,123,114,.36); border-radius: 8px; background: rgba(255,123,114,.055); }
+    .risk-mark { display: grid; width: 22px; height: 22px; place-items: center; border: 1px solid rgba(255,123,114,.58); border-radius: 50%; color: var(--red); font: 11px var(--mono); }
+    .risk-banner p { margin: 0; color: var(--muted); font-size: 10px; line-height: 1.75; }
+    .risk-banner strong { color: #ffc1bb; }
+    .hero-card { padding: 19px; border: 1px solid rgba(255,123,114,.22); border-radius: 10px; background: linear-gradient(145deg,rgba(27,23,27,.92),rgba(12,17,23,.9)); box-shadow: 0 20px 55px rgba(0,0,0,.17); }
+    .hero-card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 13px; border-bottom: 1px solid var(--line); }
+    .hero-card-head span:first-child { color: var(--subtle); font: 8px var(--mono); letter-spacing: .1em; }
+    .review-pill { padding: 4px 7px; border: 1px solid rgba(255,123,114,.35); border-radius: 4px; color: var(--red); font: 8px var(--mono); letter-spacing: .07em; }
+    .hero-card h2 { margin: 16px 0 7px; font-size: 15px; }
+    .hero-card p { margin: 0; color: var(--muted); font-size: 10px; line-height: 1.7; }
+    .hero-specs { display: grid; gap: 9px; margin: 16px 0 0; padding: 0; list-style: none; }
+    .hero-specs li { display: flex; justify-content: space-between; gap: 11px; color: var(--subtle); font: 8px var(--mono); }
+    .hero-specs strong { color: var(--text); font-weight: 500; text-align: right; }
+    .section { padding-block: 37px 50px; }
+    .section-head { display: grid; grid-template-columns: minmax(0,1fr) minmax(220px,.72fr); align-items: end; gap: 26px; margin-bottom: 20px; }
+    .section-head h2 { margin: 8px 0 0; font-size: clamp(1.4rem,2.8vw,1.9rem); line-height: 1.3; }
+    .section-intro { max-width: 500px; margin: 0 0 2px; color: var(--muted); font-size: 11px; line-height: 1.75; }
+    .mock-shell { overflow: hidden; border: 1px solid rgba(88,166,255,.25); border-radius: 10px; background: linear-gradient(145deg,rgba(17,24,32,.96),rgba(11,16,22,.97)); }
+    .mock-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 15px; border-bottom: 1px solid var(--line); }
+    .mock-title { color: var(--text); font: 9px var(--mono); }
+    .mock-only { padding: 4px 7px; border: 1px solid rgba(227,179,65,.28); border-radius: 4px; color: var(--amber); font: 8px var(--mono); letter-spacing: .06em; }
+    .mock-grid { display: grid; grid-template-columns: minmax(0,1.25fr) minmax(240px,.75fr); }
+    .mock-view { display: grid; min-height: 270px; place-items: center; padding: 18px; border-right: 1px solid var(--line); background: radial-gradient(ellipse at 50% 50%,rgba(88,166,255,.07),transparent 65%); }
+    .camera-frame { position: relative; display: grid; width: min(100%,440px); min-height: 225px; place-items: center; overflow: hidden; border: 1px solid rgba(139,148,158,.23); border-radius: 8px; background: linear-gradient(145deg,#101820,#080b10); }
+    .camera-frame::before, .camera-frame::after { position: absolute; width: 36px; height: 36px; border-color: rgba(88,166,255,.55); border-style: solid; content: ""; }
+    .camera-frame::before { top: 13px; left: 13px; border-width: 1px 0 0 1px; }
+    .camera-frame::after { right: 13px; bottom: 13px; border-width: 0 1px 1px 0; }
+    .lens-mark { display: grid; width: 68px; height: 68px; place-items: center; border: 1px solid rgba(88,166,255,.35); border-radius: 50%; color: var(--blue); background: rgba(88,166,255,.06); font-size: 25px; }
+    .camera-caption { position: absolute; right: 12px; bottom: 10px; left: 12px; color: var(--subtle); text-align: center; font: 8px var(--mono); letter-spacing: .07em; }
+    .visible-recording { position: absolute; top: 12px; left: 12px; display: inline-flex; align-items: center; gap: 6px; padding: 5px 7px; border: 1px solid rgba(255,123,114,.4); border-radius: 4px; color: var(--red); background: rgba(20,10,12,.8); font: 8px var(--mono); letter-spacing: .05em; }
+    .record-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--red); }
+    .mock-controls { display: flex; flex-direction: column; gap: 11px; padding: 16px; }
+    .mock-state { padding: 12px; border: 1px solid var(--line); border-radius: 7px; background: rgba(8,13,18,.6); }
+    .mock-state-label { display: block; color: var(--subtle); font: 8px var(--mono); letter-spacing: .1em; }
+    .mock-state strong { display: block; margin-top: 5px; color: var(--blue); font: 600 12px var(--mono); }
+    .mock-state p { margin: 5px 0 0; color: var(--muted); font-size: 9px; line-height: 1.65; }
+    .mock-buttons { display: grid; gap: 7px; }
+    .mock-button { display: inline-flex; min-height: 35px; align-items: center; justify-content: center; padding: 0 10px; border: 1px solid var(--line-strong); border-radius: 6px; color: var(--text); background: #121a22; font-size: 9px; font-weight: 650; cursor: pointer; transition: border-color 140ms ease,color 140ms ease,background 140ms ease; }
+    .mock-button:hover:not(:disabled) { border-color: var(--cyan); color: var(--cyan); background: rgba(0,255,204,.045); }
+    .mock-button.primary { border-color: rgba(88,166,255,.35); color: var(--blue); background: rgba(88,166,255,.07); }
+    .mock-button.primary:hover:not(:disabled) { background: rgba(88,166,255,.12); }
+    .mock-button.stop:hover:not(:disabled) { border-color: var(--red); color: var(--red); background: rgba(255,123,114,.05); }
+    .mock-button:disabled { opacity: .45; cursor: not-allowed; }
+    .mock-foot { padding: 10px 14px; border-top: 1px solid var(--line); color: var(--subtle); font-size: 9px; line-height: 1.65; }
+    .mock-foot strong { color: var(--amber); }
+    .two-col { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
+    .content-card { padding: 18px; border: 1px solid var(--line); border-radius: 8px; background: rgba(17,24,32,.58); }
+    .content-card h3 { margin: 0 0 8px; font-size: 12px; }
+    .content-card p, .content-card li { color: var(--muted); font-size: 10px; line-height: 1.75; }
+    .content-card p { margin: 0 0 9px; }
+    .content-card p:last-child { margin-bottom: 0; }
+    .content-card ul { display: grid; gap: 7px; margin: 9px 0 0; padding-left: 17px; }
+    .content-card strong { color: var(--text); }
+    .risk-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 11px; }
+    .risk-card { min-height: 132px; padding: 16px; border: 1px solid var(--line); border-radius: 8px; background: rgba(17,24,32,.55); }
+    .risk-card span { color: var(--red); font: 8px var(--mono); letter-spacing: .08em; }
+    .risk-card h3 { margin: 12px 0 6px; font-size: 11px; }
+    .risk-card p { margin: 0; color: var(--muted); font-size: 9px; line-height: 1.7; }
+    .check-list { display: grid; gap: 9px; margin: 0; padding: 0; list-style: none; }
+    .check-list li { display: grid; grid-template-columns: 17px 1fr; gap: 8px; color: var(--muted); font-size: 10px; line-height: 1.7; }
+    .check-list li::before { color: var(--cyan); content: "//"; font: 9px var(--mono); }
+    .source-link { display: inline-flex; min-height: 36px; align-items: center; gap: 8px; margin-top: 7px; padding: 0 11px; border: 1px solid rgba(88,166,255,.3); border-radius: 6px; color: var(--blue); background: rgba(88,166,255,.05); font: 9px var(--mono); }
+    .source-link:hover { border-color: var(--blue); }
+    .closing-note { padding: 17px; border: 1px solid rgba(227,179,65,.24); border-radius: 8px; background: rgba(227,179,65,.04); }
+    .closing-note h2 { margin: 0 0 7px; color: #ead392; font-size: 12px; }
+    .closing-note p { margin: 0; color: var(--muted); font-size: 10px; line-height: 1.75; }
+    .site-footer { margin-top: 16px; border-top: 1px solid var(--line); background: rgba(8,12,17,.56); }
+    .footer-inner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 18px; padding-block: 17px; }
+    .footer-brand { color: var(--text); font: 600 10px var(--mono); }
+    .footer-inner p { margin: 0; color: var(--subtle); font-size: 9px; }
+    .back-top { color: var(--cyan); font: 9px var(--mono); }
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; gap: 22px; padding-top: 43px; }
+      .hero-card { max-width: 640px; }
+      .mock-grid { grid-template-columns: 1fr; }
+      .mock-view { border-right: 0; border-bottom: 1px solid var(--line); }
+      .mock-controls { display: grid; grid-template-columns: minmax(0,.85fr) minmax(210px,1fr); align-items: start; }
+      .mock-buttons { grid-column: 2; grid-row: 1; }
+    }
+    @media (max-width: 650px) {
+      .wrap, .header-inner { width: min(100% - 32px,var(--max)); }
+      .header-inner { min-height: 68px; grid-template-rows: auto auto; gap: 7px; padding-block: 8px 9px; }
+      .brand-tag { display: none; }
+      .primary-nav { width: 100%; flex-wrap: wrap; justify-content: center; gap: 1px; }
+      .primary-nav a { padding: 7px 5px; font-size: 7px; }
+      .hero { padding-block: 35px 23px; }
+      .section { padding-block: 30px 39px; }
+      .section-head { grid-template-columns: 1fr; gap: 8px; }
+      .two-col, .risk-grid { grid-template-columns: 1fr; }
+      .mock-controls { display: flex; }
+      .mock-top { align-items: flex-start; flex-direction: column; }
+      .camera-frame { min-height: 205px; }
+      .footer-inner { align-items: flex-start; flex-direction: column; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="index.html" aria-label="The Joyboy Labs home"><span class="brand-name">The Joyboy Labs</span><span class="brand-tag">DEV // SECURITY // CREATIVE</span></a>
+      <nav class="primary-nav" aria-label="Primary navigation">
+        <a href="index.html">Home</a>
+        <a href="roblox.html">Roblox Luau</a>
+        <a href="war-tycoon.html">War Tycoon</a>
+        <a href="flappy-friend.html">Flappy Friend</a>
+        <a href="python.html">Python Tools</a>
+        <a href="cyber.html">Cyber Security</a>
+        <a href="pc-unlocker.html">PC Unlocker</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero wrap" aria-labelledby="page-title">
+      <div>
+        <p class="eyebrow"><span class="status-dot"></span> CAMERA APP // PRIVACY REVIEW</p>
+        <h1 id="page-title">Web Snap <span class="accent">Filter</span></h1>
+        <p class="hero-lead">The supplied project description combines browser camera filters with automatic recording and server upload “without the person using the website knowing.” That is covert surveillance, not a consent-based camera experience.</p>
+        <div class="badge-row" aria-label="Review topics"><span class="badge">CAMERA PERMISSION</span><span class="badge">VIDEO PRIVACY</span><span class="badge">CONSENT REQUIRED</span><span class="badge">NO LIVE CAPTURE HERE</span></div>
+        <div class="risk-banner" role="note"><span class="risk-mark" aria-hidden="true">!</span><p><strong>I can’t help operationalize hidden recording or access videos without the person’s knowledge.</strong> This showcase deliberately omits launch commands, tunnel setup, access-key retrieval, and recording-access instructions. The mock below demonstrates visible, user-controlled states only.</p></div>
+      </div>
+      <aside class="hero-card" aria-label="Project privacy summary">
+        <div class="hero-card-head"><span>PROJECT REVIEW / CAMERA DATA</span><span class="review-pill">HIGH PRIVACY RISK</span></div>
+        <h2>Camera access needs clear consent.</h2>
+        <p>A browser camera filter can be legitimate when the user understands what is captured and controls recording and sharing.</p>
+        <ul class="hero-specs"><li><span>PROJECT TYPE</span><strong>Browser camera app</strong></li><li><span>README CLAIM</span><strong>Automatic video capture</strong></li><li><span>DESTINATION</span><strong>Server-side recordings</strong></li><li><span>CONSENT IN DESCRIPTION</span><strong>Explicitly absent</strong></li><li><span>THIS PAGE</span><strong>Safe mock only</strong></li></ul>
+      </aside>
+    </section>
+
+    <section class="section wrap" id="demo" aria-labelledby="demo-title">
+      <div class="section-head"><div><p class="section-label">// CONSENT-FIRST MOCKUP</p><h2 id="demo-title">A visible recording flow</h2></div><p class="section-intro">This local simulation does not request camera permission, capture or save video, contact a server, or transmit data. It shows the kind of clear controls a legitimate camera tool should provide.</p></div>
+      <div class="mock-shell">
+        <div class="mock-top"><span class="mock-title">CAMERA PREVIEW / UI SIMULATION</span><span class="mock-only">MOCK ONLY · NO CAMERA</span></div>
+        <div class="mock-grid">
+          <div class="mock-view"><div class="camera-frame" role="img" aria-label="Illustration of an inactive camera preview; no camera is accessed"><span class="lens-mark" aria-hidden="true">◎</span><span class="camera-caption" id="cameraCaption">CAMERA OFF · NO DEVICE ACCESS</span><span class="visible-recording" id="recordIndicator" hidden><i class="record-dot"></i> RECORDING · SIMULATED</span></div></div>
+          <div class="mock-controls">
+            <div class="mock-state" aria-live="polite"><span class="mock-state-label">CONSENT STATE</span><strong id="mockStateTitle">Camera off</strong><p id="mockStateText">No device has been requested. This panel is a static mock until you choose a demo action.</p></div>
+            <div class="mock-buttons"><button class="mock-button primary" id="consentButton" type="button">Review consent notice</button><button class="mock-button" id="recordButton" type="button" disabled>Simulate visible recording</button><button class="mock-button stop" id="stopButton" type="button" disabled>Stop / reset</button></div>
+          </div>
+        </div>
+        <div class="mock-foot"><strong>Safety boundary:</strong> the demo uses no camera API, microphone, file upload, network request, or server storage.</div>
+      </div>
+    </section>
+
+    <section class="section wrap" aria-labelledby="readme-title">
+      <div class="section-head"><div><p class="section-label">// WHAT THE DESCRIPTION SAYS</p><h2 id="readme-title">Features do not replace consent</h2></div><p class="section-intro">The items here are a high-level summary of the text you supplied—not an independent review of the repository’s source code.</p></div>
+      <div class="two-col">
+        <article class="content-card"><h3>Described components</h3><ul><li>A browser-based camera-filter interface.</li><li>A Node server with an access key.</li><li>A public tunnel for reaching the local site.</li><li>Automatic video recording saved on the server.</li></ul></article>
+        <article class="content-card"><h3>Why the described behavior is unsafe</h3><p>The description explicitly says recording and upload happen without the person using the site knowing. A secret key or private tunnel does not make non-consensual capture acceptable.</p><p>Personal video is sensitive. Hidden capture removes the subject’s ability to decide whether to participate, stop recording, or agree to sharing and retention.</p></article>
+      </div>
+    </section>
+
+    <section class="section wrap" aria-labelledby="risk-title">
+      <div class="section-head"><div><p class="section-label">// PRIVACY RED FLAGS</p><h2 id="risk-title">Do not deploy as described</h2></div><p class="section-intro">The README’s stated covert purpose is enough to reject the hidden-recording workflow, without needing to run or inspect it.</p></div>
+      <div class="risk-grid">
+        <article class="risk-card"><span>01 / NO NOTICE</span><h3>Secret capture</h3><p>People must be told when a camera is active and what will be recorded.</p></article>
+        <article class="risk-card"><span>02 / NO CONTROL</span><h3>Hidden recording</h3><p>A visible start, persistent status, and immediate stop control are basic consent safeguards.</p></article>
+        <article class="risk-card"><span>03 / DATA EXPOSURE</span><h3>Remote video storage</h3><p>Recording, upload, access, and deletion need transparent purpose and explicit agreement.</p></article>
+      </div>
+    </section>
+
+    <section class="section wrap" aria-labelledby="safe-title">
+      <div class="section-head"><div><p class="section-label">// SAFE REDESIGN</p><h2 id="safe-title">Build for informed, visible use</h2></div><p class="section-intro">If the goal is a legitimate camera-filter app, remove covert recording and make each camera and upload action user-initiated.</p></div>
+      <article class="content-card">
+        <ul class="check-list">
+          <li>Explain camera use before requesting permission; request access only after a deliberate user action.</li>
+          <li>Keep a persistent, unmistakable camera/recording indicator and a one-click Stop control.</li>
+          <li>Show the recording and upload destination before sending anything; require a separate, informed upload confirmation.</li>
+          <li>State retention and deletion behavior, minimize stored data, and provide a way to remove recordings.</li>
+          <li>Test with consenting participants and use only footage they have explicitly agreed to provide.</li>
+        </ul>
+      </article>
+    </section>
+
+    <section class="section wrap" aria-labelledby="source-title">
+      <div class="section-head"><div><p class="section-label">// SOURCE REFERENCE</p><h2 id="source-title">Review the project carefully</h2></div><p class="section-intro">This is the repository URL supplied with the request. Linking it is not an endorsement, safety audit, or recommendation to run the described software.</p></div>
+      <a class="source-link" href="https://github.com/ujjal-saha/web-snap-filter" target="_blank" rel="noopener noreferrer">Open the user-provided GitHub repository <span aria-hidden="true">↗</span></a>
+    </section>
+
+    <section class="section wrap" aria-labelledby="note-title"><div class="closing-note"><h2 id="note-title">Privacy comes first</h2><p>This page includes no setup or tunnel instructions for the described recording workflow. Its interactive controls only simulate transparent consent states; they do not access a camera or record anyone.</p></div></section>
+  </main>
+
+  <footer class="site-footer"><div class="footer-inner wrap"><a class="footer-brand" href="index.html">The Joyboy Labs</a><p>Built for curiosity. Shared with care.</p><a class="back-top" href="#main">BACK TO TOP ↑</a></div></footer>
+
+  <script>
+    (() => {
+      const consentButton = document.getElementById("consentButton");
+      const recordButton = document.getElementById("recordButton");
+      const stopButton = document.getElementById("stopButton");
+      const title = document.getElementById("mockStateTitle");
+      const text = document.getElementById("mockStateText");
+      const caption = document.getElementById("cameraCaption");
+      const indicator = document.getElementById("recordIndicator");
+      let acknowledged = false;
+
+      consentButton.addEventListener("click", () => {
+        acknowledged = true;
+        title.textContent = "Notice reviewed · mock";
+        text.textContent = "In a real consent-first app, camera purpose, storage, sharing, and deletion would be explained before requesting access. No camera was requested here.";
+        caption.textContent = "CONSENT NOTICE REVIEWED · STILL NO CAMERA";
+        recordButton.disabled = false;
+        stopButton.disabled = false;
+      });
+
+      recordButton.addEventListener("click", () => {
+        if (!acknowledged) return;
+        title.textContent = "Visible recording · simulated";
+        text.textContent = "This is only a UI state. No media is captured, encoded, saved, or transmitted.";
+        caption.textContent = "SIMULATED RECORDING · NO DEVICE ACCESS";
+        indicator.hidden = false;
+        recordButton.disabled = true;
+      });
+
+      stopButton.addEventListener("click", () => {
+        acknowledged = false;
+        title.textContent = "Camera off";
+        text.textContent = "No device has been requested. This panel is a static mock until you choose a demo action.";
+        caption.textContent = "CAMERA OFF · NO DEVICE ACCESS";
+        indicator.hidden = true;
+        recordButton.disabled = true;
+        stopButton.disabled = true;
+      });
+    })();
+  </script>
+</body>
+</html>
