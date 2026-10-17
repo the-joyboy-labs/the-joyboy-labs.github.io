@@ -621,9 +621,9 @@
           <span class="badge">MIT LICENSE</span>
         </div>
         <div class="hero-actions">
-          <a class="button" href="#demo">Launch Live AI Visualizer <span aria-hidden="true">↓</span></a>
+          <a class="button" href="https://github.com/ujjal-saha/offline-dino-ai-play" target="_blank" rel="noopener noreferrer">View project on GitHub <span aria-hidden="true">↗</span></a>
+          <a class="button secondary" href="#demo">Try live AI visualizer <span aria-hidden="true">↓</span></a>
           <button class="button secondary" id="heroDownloadGenome" type="button">Download best_genome_v3.json <span aria-hidden="true">↓</span></button>
-          <a class="text-link" href="#genome-section">Inspect Gen 58 Synapses →</a>
         </div>
         <div class="photo-note" role="note">
           <span class="note-icon" aria-hidden="true">i</span>
@@ -640,6 +640,7 @@
         <p>Evolved with NEAT-Python and ported 1:1 to HTML5 Canvas, enforcing strict upper-airspace collision boxes so the AI must crouch under every flying bird.</p>
         <ul class="hero-specs">
           <li><span>CREATOR</span><strong>Ujjal Saha (Joyboy Lab)</strong></li>
+          <li><span>REPOSITORY</span><strong>ujjal-saha / offline-dino-ai-play</strong></li>
           <li><span>CHAMPION MODEL</span><strong>Gen 58 (ID #5662 · 1212.33 Fit)</strong></li>
           <li><span>TOPOLOGY</span><strong>7 In → 3 Hidden → 2 Out</strong></li>
           <li><span>VALIDATION</span><strong>100 / 100 Unseen Courses</strong></li>
@@ -1014,21 +1015,34 @@
     <section class="section wrap" aria-labelledby="repo-title">
       <div class="section-head">
         <div>
-          <p class="section-label">// PROJECT &amp; PACKAGES</p>
-          <h2 id="repo-title">Get the Complete v3 Source</h2>
+          <p class="section-label">// PROJECT &amp; REPOSITORY</p>
+          <h2 id="repo-title">Open the Repository</h2>
         </div>
-        <p class="section-intro">Available as a unified Web + Python repository or standalone Pygame NEAT trainer under the MIT License.</p>
+        <p class="section-intro">Clone the official GitHub repository to run the Pygame visualizer, inspect the Generation 58 genome, or train your own NEAT populations locally.</p>
       </div>
       <div class="source-grid">
-        <a class="source-card" href="https://drive.google.com/file/d/1qudqpxTLH1oWASxFwL58eWIeHPrAuCHw/view?usp=drivesdk" target="_blank" rel="noopener noreferrer">
-          <span>COMPLETE SUITE (WEB + PYTHON + GEN 58 MODEL)</span>
-          <strong>t-rex-runner-v3.zip (GitHub-Ready Release) ↗</strong>
+        <a class="source-card" href="https://github.com/ujjal-saha/offline-dino-ai-play" target="_blank" rel="noopener noreferrer">
+          <span>GITHUB / OFFICIAL PROJECT REPOSITORY</span>
+          <strong>ujjal-saha / offline-dino-ai-play ↗</strong>
         </a>
-        <a class="source-card" href="https://drive.google.com/file/d/1V0OmbDe6B4XoqwfqMjuGjq1sgOH-FZnl/view?usp=drivesdk" target="_blank" rel="noopener noreferrer">
-          <span>PYTHON PYGAME + NEAT-PYTHON TRAINER</span>
-          <strong>NEAT-Dino-v3.zip (Standalone Python Repo) ↗</strong>
+        <a class="source-card" href="https://raw.githubusercontent.com/ujjal-saha/offline-dino-ai-play/main/best_genome_v3.json" target="_blank" rel="noopener noreferrer">
+          <span>RAW GEN 58 CHAMPION WEIGHTS (JSON)</span>
+          <strong>ujjal-saha / offline-dino-ai-play / best_genome_v3.json ↗</strong>
         </a>
       </div>
+      <article class="content-card" style="margin-top:12px">
+        <h3>Quick Start (Python + Pygame + NEAT)</h3>
+        <p>Clone the repository and run the pretrained Generation 58 champion or start a fresh neuroevolution run:</p>
+        <pre class="code-box" style="max-height:none">git clone https://github.com/ujjal-saha/offline-dino-ai-play.git
+cd offline-dino-ai-play
+pip install -r requirements.txt
+
+# Watch the pretrained Gen 58 Champion play
+python dino_game.py --play
+
+# Train a new NEAT population from scratch at 20x speed
+python dino_game.py --train --fast</pre>
+      </article>
     </section>
 
     <!-- LICENSE & CREDITS NOTE -->
