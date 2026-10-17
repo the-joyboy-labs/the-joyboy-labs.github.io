@@ -64,7 +64,8 @@
     .header-inner {
       display: grid;
       width: min(var(--max), calc(100% - 44px));
-      grid-template-rows: 58px 44px;
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: 58px 46px;
       justify-items: center;
       margin-inline: auto;
       padding-top: 5px;
@@ -84,11 +85,23 @@
       to { opacity: 1; transform: translateY(0); }
     }
     .primary-nav {
-      display: flex; grid-row: 2; align-items: center; justify-self: center; gap: 4px; flex-wrap: wrap;
+      display: flex; grid-row: 2; width: 100%; max-width: 100%; min-width: 0;
+      align-items: center; justify-self: center; gap: 5px;
+      overflow-x: auto; overflow-y: hidden; white-space: nowrap;
+      scroll-behavior: smooth; -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin; scrollbar-color: rgba(0,255,204,.28) transparent;
+      padding-bottom: 3px;
     }
+    .primary-nav > :first-child { margin-left: auto; }
+    .primary-nav > :last-child { margin-right: auto; }
+    .primary-nav::-webkit-scrollbar { height: 3px; }
+    .primary-nav::-webkit-scrollbar-track { background: transparent; }
+    .primary-nav::-webkit-scrollbar-thumb { background: rgba(139,148,158,.26); border-radius: 999px; }
+    .primary-nav:hover::-webkit-scrollbar-thumb { background: rgba(0,255,204,.55); }
     .primary-nav a {
-      position: relative; padding: 8px 9px; border-radius: 6px;
-      color: var(--muted); font-size: 9px;
+      position: relative; flex: 0 0 auto; white-space: nowrap;
+      padding: 8px 10px; border-radius: 6px;
+      color: var(--muted); font-size: 11px; font-weight: 550;
       transition: color 150ms ease, background 150ms ease;
     }
     .primary-nav a:hover, .primary-nav a[aria-current="page"] {
@@ -577,7 +590,7 @@
         <span class="brand-name">The Joyboy Labs</span>
         <span class="brand-tag">DEV // SECURITY // CREATIVE</span>
       </a>
-      <nav class="primary-nav" aria-label="Primary navigation">
+      <nav class="primary-nav" id="primary-navigation" aria-label="Primary navigation">
         <a href="index.html">Home</a>
         <a href="roblox.html">Roblox Luau</a>
         <a href="war-tycoon.html">War Tycoon</a>
@@ -586,6 +599,9 @@
         <a href="pc-unlocker.html">PC Unlocker</a>
         <a href="flappy-friend.html">Flappy Friend</a>
         <a href="neat-dino.html" aria-current="page">NEAT Dino v3</a>
+        <a href="web-snap-filter.html">Web Snap Filter</a>
+        <a href="triple-ai-split.html">Triple AI Split</a>
+        <a href="serious-dev.html">Serious-Dev</a>
       </nav>
     </div>
   </header>
@@ -3145,6 +3161,17 @@ if (document.readyState === 'loading') {
   <!-- Subpage Interactive Utilities (Theme Switcher, Genome Upload/Download/Copy) -->
   <script>
     (() => {
+      const topNav = document.getElementById('primary-navigation');
+      if (topNav) {
+        topNav.addEventListener('wheel', (e) => {
+          if (topNav.scrollWidth <= topNav.clientWidth) return;
+          if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+            e.preventDefault();
+            topNav.scrollLeft += e.deltaY;
+          }
+        }, { passive: false });
+      }
+
       const viewportTheme = document.getElementById('viewportTheme');
       const viewportFrame = document.getElementById('viewportFrame');
       if (viewportTheme && viewportFrame) {

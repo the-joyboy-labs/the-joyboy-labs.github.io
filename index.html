@@ -7,6 +7,51 @@
   <meta name="description" content="The Joyboy Labs is a focused home for Roblox Luau scripts, practical Python tools, and responsible cybersecurity learning.">
   <title>The Joyboy Labs — Build, learn, explore</title>
   <link rel="stylesheet" href="css/style.css">
+  <style>
+    .nav-shell {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: 55px 48px;
+    }
+    .primary-nav {
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      overflow-x: auto;
+      overflow-y: hidden;
+      white-space: nowrap;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(88, 232, 194, 0.28) transparent;
+      padding-bottom: 3px;
+    }
+    .primary-nav > :first-child { margin-left: auto; }
+    .primary-nav > :last-child { margin-right: auto; }
+    .primary-nav::-webkit-scrollbar { height: 3px; }
+    .primary-nav::-webkit-scrollbar-track { background: transparent; }
+    .primary-nav::-webkit-scrollbar-thumb {
+      background: rgba(139, 148, 158, 0.26);
+      border-radius: 999px;
+    }
+    .primary-nav:hover::-webkit-scrollbar-thumb {
+      background: rgba(88, 232, 194, 0.55);
+    }
+    .nav-link {
+      flex: 0 0 auto;
+      white-space: nowrap;
+    }
+    @media (max-width: 960px) {
+      .nav-shell { grid-template-rows: auto; }
+      .primary-nav {
+        overflow-x: visible;
+        overflow-y: auto;
+        max-height: calc(100vh - 76px);
+        white-space: normal;
+      }
+      .primary-nav > :first-child,
+      .primary-nav > :last-child { margin-inline: 0; }
+    }
+  </style>
   <script src="js/main.js" defer></script>
 </head>
 <body>
@@ -42,6 +87,8 @@
         <a class="nav-link" href="flappy-friend.html">Flappy Friend</a>
         <a class="nav-link" href="neat-dino.html">NEAT Dino v3</a>
         <a class="nav-link" href="web-snap-filter.html">Web Snap Filter</a>
+        <a class="nav-link" href="triple-ai-split.html">Triple AI Split</a>
+        <a class="nav-link" href="serious-dev.html">Serious-Dev</a>
         <a class="discord-link button button-discord" href="https://discord.gg/joyboyhakari_16266" target="_blank" rel="noopener noreferrer">
           <span class="blob1" aria-hidden="true"></span><span class="blob2" aria-hidden="true"></span>
           <span class="inner"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M19.7 5.3a17.6 17.6 0 0 0-4.3-1.4l-.5 1a16.2 16.2 0 0 0-5.8 0l-.5-1a17.6 17.6 0 0 0-4.3 1.4C1.6 9.2.8 13 .8 16.8a17.8 17.8 0 0 0 5.3 2.7l1.1-1.8-1.7-.8.4-.3a12.6 12.6 0 0 0 12.2 0l.4.3-1.7.8 1.1 1.8a17.8 17.8 0 0 0 5.3-2.7c0-4.4-.8-8.1-3.5-11.5ZM8.8 14.7c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.8.9 1.8 2-.8 2-1.8 2Zm6.4 0c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.8.9 1.8 2-.8 2-1.8 2Z"/></svg><span>Join Discord</span><span class="external-mark" aria-hidden="true">↗</span></span>
@@ -188,5 +235,18 @@
       <span class="footer-meta">STATIC SITE <span aria-hidden="true">·</span> © <span data-current-year>2026</span> THE JOYBOY LABS</span>
     </div>
   </footer>
+  <script>
+    (() => {
+      const nav = document.getElementById("primary-navigation");
+      if (!nav) return;
+      nav.addEventListener("wheel", (e) => {
+        if (window.innerWidth <= 960 || nav.scrollWidth <= nav.clientWidth) return;
+        if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+          e.preventDefault();
+          nav.scrollLeft += e.deltaY;
+        }
+      }, { passive: false });
+    })();
+  </script>
 </body>
 </html>
