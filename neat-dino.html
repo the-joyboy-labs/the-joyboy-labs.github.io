@@ -1,0 +1,3233 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0d1117">
+  <meta name="description" content="NEAT T-Rex Runner v3: Watch a Generation 58 neuroevolution AI master Chromium's t-rex-runner-v2 with true bird-ducking physics, live neural network topology visualization, and 100-dino browser evolution.">
+  <title>NEAT T-Rex Runner v3 — The Joyboy Labs</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0d1117;
+      --bg-deep: #090d12;
+      --panel: #111820;
+      --panel-soft: #0c1219;
+      --text: #e6edf3;
+      --muted: #a1adba;
+      --subtle: #788694;
+      --line: rgba(139,148,158,.2);
+      --line-strong: rgba(139,148,158,.34);
+      --cyan: #00ffcc;
+      --blue: #58a6ff;
+      --violet: #c3a1ff;
+      --amber: #e3b341;
+      --red: #ff7b72;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      --max: 1160px;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 118px; background: var(--bg); }
+    body {
+      min-width: 320px;
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(ellipse at 16% -14%, rgba(0,255,204,.075), transparent 34rem),
+        radial-gradient(ellipse at 100% 48%, rgba(88,166,255,.05), transparent 38rem),
+        var(--bg);
+      font: 15px/1.7 var(--sans);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+    a { color: inherit; text-decoration: none; }
+    button, select, input { font: inherit; }
+    :focus-visible { outline: 2px solid var(--cyan); outline-offset: 4px; }
+    ::selection { color: #07120f; background: var(--cyan); }
+    .wrap { width: min(var(--max), calc(100% - 44px)); margin-inline: auto; }
+    .skip-link {
+      position: fixed; z-index: 100; top: 10px; left: 12px;
+      padding: 9px 13px; transform: translateY(-150%);
+      border-radius: 7px; color: #06120f; background: var(--cyan); font-weight: 700;
+    }
+    .skip-link:focus { transform: translateY(0); }
+
+    /* Header (Matches Flappy Friend / The Joyboy Labs Subpages) */
+    .site-header {
+      position: sticky; z-index: 20; top: 0;
+      border-bottom: 1px solid rgba(139,148,158,.14);
+      background: rgba(9,13,18,.9);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+    .header-inner {
+      display: grid;
+      width: min(var(--max), calc(100% - 44px));
+      grid-template-rows: 58px 44px;
+      justify-items: center;
+      margin-inline: auto;
+      padding-top: 5px;
+    }
+    .brand {
+      display: grid; grid-row: 1; justify-items: center; align-content: center; line-height: 1.15;
+    }
+    .brand-name {
+      color: var(--text); font: 700 15px/1.2 var(--mono); letter-spacing: -.055em;
+      animation: reveal 700ms ease-out both;
+    }
+    .brand-tag {
+      margin-top: 4px; color: var(--subtle); font: 8px/1.2 var(--mono); letter-spacing: .12em;
+    }
+    @keyframes reveal {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .primary-nav {
+      display: flex; grid-row: 2; align-items: center; justify-self: center; gap: 4px; flex-wrap: wrap;
+    }
+    .primary-nav a {
+      position: relative; padding: 8px 9px; border-radius: 6px;
+      color: var(--muted); font-size: 9px;
+      transition: color 150ms ease, background 150ms ease;
+    }
+    .primary-nav a:hover, .primary-nav a[aria-current="page"] {
+      color: var(--text); background: rgba(255,255,255,.045);
+    }
+    .primary-nav a[aria-current="page"]::after {
+      position: absolute; right: 10px; bottom: 3px; left: 10px;
+      height: 1px; background: var(--cyan); content: "";
+    }
+
+    main { min-height: 70vh; }
+
+    /* Hero Section */
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(270px, .75fr);
+      align-items: center;
+      gap: clamp(28px, 6vw, 75px);
+      padding-block: 61px 42px;
+    }
+    .eyebrow, .section-label {
+      margin: 0; color: var(--cyan); font: 600 9px/1.5 var(--mono); letter-spacing: .12em;
+    }
+    .eyebrow { display: flex; align-items: center; gap: 9px; }
+    .status-dot {
+      width: 7px; height: 7px; flex: 0 0 7px; border-radius: 50%;
+      background: var(--cyan); box-shadow: 0 0 10px rgba(0,255,204,.45);
+    }
+    h1, h2, h3 { font-family: var(--mono); font-weight: 560; letter-spacing: -.055em; }
+    h1 { margin: 18px 0 15px; font-size: clamp(2.4rem, 5.8vw, 4.4rem); line-height: 1.04; }
+    .accent { color: var(--cyan); }
+    .hero-lead {
+      max-width: 690px; margin: 0; color: var(--muted);
+      font-size: clamp(14px, 1.7vw, 17px); line-height: 1.8;
+    }
+    .badge-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 21px; }
+    .badge {
+      padding: 5px 8px; border: 1px solid var(--line); border-radius: 5px;
+      color: var(--subtle); background: rgba(255,255,255,.015);
+      font: 8px/1.4 var(--mono); letter-spacing: .08em;
+    }
+    .badge.highlight {
+      border-color: rgba(0,255,204,.32); color: var(--cyan); background: rgba(0,255,204,.05);
+    }
+    .hero-actions {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 22px;
+    }
+    .button {
+      display: inline-flex; min-height: 38px; align-items: center; justify-content: center;
+      gap: 8px; padding: 0 13px; border: 1px solid rgba(0,255,204,.32);
+      border-radius: 6px; color: var(--cyan); background: rgba(0,255,204,.07);
+      font: 600 9px var(--mono); cursor: pointer;
+      transition: border-color 140ms ease, background 140ms ease, transform 140ms ease;
+    }
+    .button:hover {
+      transform: translateY(-1px); border-color: var(--cyan); background: rgba(0,255,204,.13);
+    }
+    .button.secondary {
+      border-color: var(--line-strong); color: var(--text); background: rgba(255,255,255,.03);
+    }
+    .button.secondary:hover {
+      border-color: var(--blue); color: var(--blue); background: rgba(88,166,255,.08);
+    }
+    .text-link { color: var(--blue); font-size: 10px; font-weight: 650; }
+    .text-link:hover { color: #9ccaff; }
+
+    .hero-card {
+      padding: 19px; border: 1px solid var(--line); border-radius: 10px;
+      background: linear-gradient(145deg, rgba(17,24,32,.95), rgba(12,17,23,.84));
+      box-shadow: 0 20px 55px rgba(0,0,0,.18);
+    }
+    .hero-card-head {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      padding-bottom: 13px; border-bottom: 1px solid var(--line);
+    }
+    .hero-card-head span:first-child { color: var(--subtle); font: 8px var(--mono); letter-spacing: .1em; }
+    .project-state {
+      padding: 4px 7px; border: 1px solid rgba(0,255,204,.28); border-radius: 4px;
+      color: var(--cyan); font: 8px var(--mono); letter-spacing: .07em;
+    }
+    .hero-card h2 { margin: 16px 0 7px; font-size: 15px; }
+    .hero-card p { margin: 0; color: var(--muted); font-size: 10px; line-height: 1.7; }
+    .hero-specs { display: grid; gap: 9px; margin: 16px 0 0; padding: 0; list-style: none; }
+    .hero-specs li {
+      display: flex; justify-content: space-between; gap: 12px;
+      color: var(--subtle); font: 8px var(--mono);
+    }
+    .hero-specs strong { color: var(--text); font-weight: 500; text-align: right; }
+
+    .photo-note {
+      display: flex; align-items: flex-start; gap: 11px; margin-top: 21px;
+      padding: 13px 15px; border: 1px solid rgba(88,166,255,.22);
+      border-radius: 8px; background: rgba(88,166,255,.04);
+    }
+    .photo-note .note-icon {
+      display: grid; width: 21px; height: 21px; flex: 0 0 21px; place-items: center;
+      border: 1px solid rgba(88,166,255,.4); border-radius: 50%;
+      color: var(--blue); font: 10px var(--mono);
+    }
+    .photo-note p { margin: 0; color: var(--muted); font-size: 10px; line-height: 1.7; }
+    .photo-note strong { color: #b5d8ff; }
+
+    /* Sections */
+    .section { padding-block: 39px 53px; }
+    .section-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(220px, .72fr);
+      align-items: end; gap: 27px; margin-bottom: 21px;
+    }
+    .section-head h2 { margin: 8px 0 0; font-size: clamp(1.4rem, 2.8vw, 1.95rem); line-height: 1.3; }
+    .section-intro { max-width: 510px; margin: 0 0 2px; color: var(--muted); font-size: 11px; line-height: 1.75; }
+
+    /* Demo Shell (Visual Representation NEAT T-Rex Runner v3:8080) */
+    .demo-shell {
+      overflow: hidden;
+      border: 1px solid rgba(88,166,255,.26);
+      border-radius: 10px;
+      background: linear-gradient(145deg, rgba(17,24,32,.96), rgba(11,16,22,.98));
+      box-shadow: 0 24px 60px rgba(0,0,0,.28);
+    }
+    .demo-top {
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+      gap: 10px; padding: 12px 15px; border-bottom: 1px solid var(--line);
+      background: rgba(9,13,18,.55);
+    }
+    .demo-title {
+      display: flex; align-items: center; gap: 9px;
+      color: var(--text); font: 600 10px var(--mono);
+    }
+    .demo-badges { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+    .demo-badge {
+      padding: 4px 8px; border: 1px solid rgba(227,179,65,.3);
+      border-radius: 4px; color: var(--amber); font: 8px var(--mono); letter-spacing: .06em;
+    }
+    .demo-badge.cyan {
+      border-color: rgba(0,255,204,.32); color: var(--cyan); background: rgba(0,255,204,.06);
+    }
+
+    /* Mode & Control Bar */
+    .game-tools {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+      padding: 12px 15px; border-bottom: 1px solid var(--line);
+      background: rgba(13,18,25,.65);
+    }
+    .game-button {
+      display: inline-flex; min-height: 33px; align-items: center; justify-content: center;
+      gap: 6px; padding: 0 11px; border: 1px solid var(--line-strong);
+      border-radius: 6px; color: var(--muted); background: #121a22;
+      font: 600 9px var(--mono); cursor: pointer;
+      transition: background 140ms ease, border-color 140ms ease, color 140ms ease;
+    }
+    .game-button:hover {
+      border-color: var(--cyan); color: var(--text); background: rgba(0,255,204,.08);
+    }
+    .game-button.active {
+      border-color: var(--cyan); color: #051310; background: var(--cyan); font-weight: 700;
+    }
+    .game-button.accent {
+      border-color: rgba(227,179,65,.42); color: var(--amber); background: rgba(227,179,65,.09);
+    }
+    .game-button.accent:hover {
+      border-color: var(--amber); background: rgba(227,179,65,.18);
+    }
+    .theme-label, .upload-label {
+      display: inline-flex; min-height: 33px; align-items: center; gap: 6px;
+      padding: 0 10px; border: 1px solid var(--line-strong); border-radius: 6px;
+      color: var(--muted); background: #121a22; font: 600 9px var(--mono); cursor: pointer;
+    }
+    .theme-label:hover, .upload-label:hover { border-color: var(--blue); color: var(--text); }
+    .theme-label select {
+      border: 0; color: var(--text); background: transparent; font: 600 9px var(--mono); cursor: pointer;
+    }
+    .theme-label select option { background: #111820; color: var(--text); }
+    #genomeInput {
+      position: absolute; width: 1px; height: 1px; overflow: hidden;
+      clip: rect(0,0,0,0); clip-path: inset(50%); white-space: nowrap;
+    }
+
+    /* Telemetry Status Strip */
+    .telemetry-strip {
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+      gap: 8px; padding: 10px 15px; border-bottom: 1px solid var(--line);
+      background: rgba(9,13,18,.4);
+    }
+    .stat-pills { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; }
+    .stat-pill {
+      display: inline-flex; min-height: 27px; align-items: center; gap: 6px;
+      padding: 0 9px; border: 1px solid var(--line); border-radius: 5px;
+      color: var(--muted); background: rgba(255,255,255,.02); font: 600 8.5px var(--mono);
+    }
+    .stat-pill.state-running {
+      border-color: rgba(0,255,204,.35); color: var(--cyan); background: rgba(0,255,204,.07);
+    }
+    .stat-pill.state-jumping {
+      border-color: rgba(88,166,255,.45); color: var(--blue); background: rgba(88,166,255,.11);
+    }
+    .stat-pill.state-ducking {
+      border-color: rgba(227,179,65,.48); color: var(--amber); background: rgba(227,179,65,.12);
+    }
+    .stat-pill.state-crashed {
+      border-color: rgba(255,123,114,.48); color: var(--red); background: rgba(255,123,114,.12);
+    }
+
+    /* Authentic t-rex-runner-v2 Canvas Viewport */
+    .game-stage {
+      padding: 16px 15px 12px;
+      border-bottom: 1px solid var(--line);
+      background: radial-gradient(ellipse at 50% 0%, rgba(0,255,204,.04), transparent 70%);
+    }
+    .viewport-frame {
+      position: relative;
+      width: 100%;
+      padding: 14px 12px;
+      border: 1px solid rgba(139,148,158,.24);
+      border-radius: 8px;
+      background: #f7f9fb;
+      transition: background 180ms ease, filter 180ms ease, border-color 180ms ease;
+    }
+    .viewport-frame.theme-neon {
+      background: #f2f5f8;
+      filter: invert(1) hue-rotate(175deg) contrast(1.04);
+      border-color: rgba(0,255,204,.35);
+    }
+    .viewport-frame.theme-amber {
+      background: #f8f4e8;
+      filter: invert(1) sepia(0.85) hue-rotate(5deg) saturate(2.2);
+      border-color: rgba(227,179,65,.4);
+    }
+    .interstitial-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 600px;
+      height: 150px;
+      margin: 0 auto;
+      overflow: hidden;
+      user-select: none;
+    }
+    .runner-container {
+      position: relative;
+      width: 600px;
+      height: 150px;
+      max-width: 100%;
+      overflow: hidden;
+    }
+    .runner-canvas {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 150px;
+      display: block;
+      image-rendering: pixelated;
+    }
+    .icon-offline { display: none; }
+    #offline-resources { display: none; }
+
+    .hitbox-legend {
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+      gap: 10px; margin-top: 10px; padding: 6px 4px 0;
+      color: var(--subtle); font: 8px var(--mono);
+    }
+    .legend-items { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; }
+    .legend-dot {
+      display: inline-block; width: 8px; height: 8px; margin-right: 5px;
+      border-radius: 2px; vertical-align: middle;
+    }
+
+    /* Visual Representation Split Dashboard (:8080 Neural Visualizer + Sensor Bars) */
+    .viz-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.18fr) minmax(0, 0.82fr);
+      border-bottom: 1px solid var(--line);
+    }
+    .viz-panel {
+      padding: 15px;
+      background: rgba(11,16,22,.65);
+    }
+    .viz-panel:first-child {
+      border-right: 1px solid var(--line);
+    }
+    .viz-head {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 10px; margin-bottom: 11px;
+    }
+    .viz-head h3 {
+      margin: 0; color: var(--text); font: 600 10px var(--mono); letter-spacing: -.02em;
+    }
+    .viz-sub {
+      color: var(--subtle); font: 8px var(--mono);
+    }
+    #nn-canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      border: 1px solid rgba(139,148,158,.18);
+      border-radius: 7px;
+      background: #0b1118;
+    }
+
+    /* Live Telemetry Bars */
+    .sensor-list {
+      display: grid;
+      gap: 7px;
+    }
+    .sensor-row {
+      display: grid;
+      grid-template-columns: 112px 1fr 48px;
+      align-items: center;
+      gap: 8px;
+      font: 8.5px var(--mono);
+    }
+    .sensor-name { color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sensor-track {
+      position: relative;
+      height: 8px;
+      border: 1px solid rgba(139,148,158,.2);
+      border-radius: 4px;
+      background: #090e14;
+      overflow: hidden;
+    }
+    .sensor-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--blue), var(--cyan));
+      transition: width 60ms linear;
+    }
+    .sensor-fill.bird-alert {
+      background: linear-gradient(90deg, var(--amber), var(--red));
+    }
+    .sensor-fill.out-jump {
+      background: var(--cyan);
+    }
+    .sensor-fill.out-duck {
+      background: var(--amber);
+    }
+    .sensor-val {
+      text-align: right; color: var(--text); font-weight: 600;
+    }
+    .ai-reason-box {
+      margin-top: 11px;
+      padding: 9px 11px;
+      border: 1px solid rgba(0,255,204,.24);
+      border-radius: 6px;
+      background: rgba(0,255,204,.04);
+      color: var(--muted);
+      font: 8.5px/1.55 var(--mono);
+    }
+    .ai-reason-box strong { color: var(--cyan); }
+
+    .demo-status {
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+      gap: 10px; margin: 0; padding: 10px 15px;
+      color: var(--subtle); font-size: 9px; line-height: 1.6;
+    }
+    .demo-status strong { color: var(--cyan); }
+    .key-badge {
+      display: inline-block; padding: 1px 6px;
+      border: 1px solid var(--line-strong); border-radius: 4px;
+      color: var(--text); background: #121a22; font: 600 8px var(--mono);
+    }
+
+    /* Feature Grid & Cards (Matches Flappy Friend) */
+    .feature-grid {
+      display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 11px;
+    }
+    .feature-card {
+      min-height: 156px; padding: 16px; border: 1px solid var(--line);
+      border-radius: 8px; background: rgba(17,24,32,.56);
+    }
+    .feature-index { color: var(--cyan); font: 8px var(--mono); letter-spacing: .1em; }
+    .feature-card h3 { margin: 14px 0 6px; font-size: 12px; line-height: 1.4; }
+    .feature-card p { margin: 0; color: var(--muted); font-size: 9.5px; line-height: 1.7; }
+
+    /* Genome Architecture Grid */
+    .genome-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+      gap: 13px;
+    }
+    .content-card {
+      padding: 18px; border: 1px solid var(--line); border-radius: 8px;
+      background: rgba(17,24,32,.58);
+    }
+    .content-card h3 { margin: 0 0 8px; font-size: 13px; }
+    .content-card p { margin: 0 0 9px; color: var(--muted); font-size: 10px; line-height: 1.75; }
+    .synapse-table {
+      width: 100%; border-collapse: collapse; margin-top: 10px; font: 8.5px var(--mono);
+    }
+    .synapse-table th, .synapse-table td {
+      padding: 6px 8px; border-bottom: 1px solid var(--line); text-align: left;
+    }
+    .synapse-table th { color: var(--subtle); font-weight: 600; letter-spacing: .06em; }
+    .w-pos { color: var(--cyan); font-weight: 700; }
+    .w-neg { color: var(--red); font-weight: 700; }
+    .code-box {
+      position: relative;
+      max-height: 295px;
+      overflow: auto;
+      margin: 10px 0 0;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #080c11;
+      color: #c9d1d9;
+      font: 8.5px/1.6 var(--mono);
+    }
+
+    /* How Grid */
+    .how-grid {
+      display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 11px; counter-reset: how;
+    }
+    .how-card {
+      min-height: 130px; padding: 16px; border: 1px solid var(--line);
+      border-radius: 8px; background: rgba(17,24,32,.55); counter-increment: how;
+    }
+    .how-card::before {
+      display: block; margin-bottom: 11px; color: var(--cyan);
+      content: "0" counter(how) " / WORKFLOW"; font: 8px var(--mono); letter-spacing: .08em;
+    }
+    .how-card h3 { margin: 0 0 6px; font-size: 11px; }
+    .how-card p { margin: 0; color: var(--muted); font-size: 9.5px; line-height: 1.7; }
+
+    /* Source & Download Cards */
+    .source-grid {
+      display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px;
+    }
+    .source-card {
+      display: flex; min-height: 93px; flex-direction: column;
+      justify-content: space-between; gap: 10px; padding: 15px;
+      border: 1px solid var(--line); border-radius: 8px;
+      background: rgba(17,24,32,.55);
+      transition: border-color 140ms ease, transform 140ms ease;
+    }
+    .source-card:hover { transform: translateY(-2px); border-color: rgba(0,255,204,.45); }
+    .source-card span { color: var(--subtle); font: 8px var(--mono); letter-spacing: .08em; }
+    .source-card strong { color: var(--cyan); font: 10px var(--mono); }
+
+    .closing-note {
+      padding: 18px; border: 1px solid rgba(0,255,204,.24);
+      border-radius: 8px; background: rgba(0,255,204,.035);
+    }
+    .closing-note h2 { margin: 0 0 8px; color: var(--cyan); font-size: 12px; }
+    .closing-note p { margin: 0; color: var(--muted); font-size: 10px; line-height: 1.75; }
+    .closing-note strong { color: var(--text); }
+
+    /* Footer */
+    .site-footer {
+      margin-top: 18px; border-top: 1px solid var(--line); background: rgba(8,12,17,.56);
+    }
+    .footer-inner {
+      display: flex; flex-wrap: wrap; align-items: center;
+      justify-content: space-between; gap: 10px 18px; padding-block: 17px;
+    }
+    .footer-brand { color: var(--text); font: 600 10px var(--mono); }
+    .footer-inner p, .footer-inner span { margin: 0; color: var(--subtle); font-size: 9px; }
+    .back-top { color: var(--cyan) !important; font: 9px var(--mono) !important; }
+
+    @media (max-width: 920px) {
+      .hero { grid-template-columns: 1fr; gap: 22px; padding-top: 46px; }
+      .hero-card { max-width: 640px; }
+      .feature-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .viz-grid, .genome-grid, .source-grid { grid-template-columns: 1fr; }
+      .viz-panel:first-child { border-right: 0; border-bottom: 1px solid var(--line); }
+    }
+    @media (max-width: 650px) {
+      .wrap, .header-inner { width: min(100% - 32px, var(--max)); }
+      .header-inner { min-height: 68px; grid-template-rows: auto auto; gap: 7px; padding-block: 8px 9px; }
+      .brand-tag { display: none; }
+      .primary-nav { width: 100%; flex-wrap: wrap; justify-content: center; gap: 1px; }
+      .primary-nav a { padding: 7px 6px; font-size: 8px; }
+      .hero { padding-block: 37px 25px; }
+      .section { padding-block: 31px 41px; }
+      .section-head { grid-template-columns: 1fr; gap: 8px; }
+      .feature-grid, .how-grid { grid-template-columns: 1fr; }
+      .demo-top { align-items: flex-start; flex-direction: column; }
+      .footer-inner { align-items: flex-start; flex-direction: column; }
+    }
+  </style>
+</head>
+<body class="joyboy-dark">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="index.html" aria-label="The Joyboy Labs home">
+        <span class="brand-name">The Joyboy Labs</span>
+        <span class="brand-tag">DEV // SECURITY // CREATIVE</span>
+      </a>
+      <nav class="primary-nav" aria-label="Primary navigation">
+        <a href="index.html">Home</a>
+        <a href="roblox.html">Roblox Luau</a>
+        <a href="war-tycoon.html">War Tycoon</a>
+        <a href="python.html">Python Tools</a>
+        <a href="cyber.html">Cyber Security</a>
+        <a href="pc-unlocker.html">PC Unlocker</a>
+        <a href="flappy-friend.html">Flappy Friend</a>
+        <a href="neat-dino.html" aria-current="page">NEAT Dino v3</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- HERO SECTION -->
+    <section class="hero wrap" aria-labelledby="page-title">
+      <div>
+        <p class="eyebrow"><span class="status-dot"></span> NEUROEVOLUTION AI // CHROMIUM ARCADE ENGINE</p>
+        <h1 id="page-title">NEAT <span class="accent">T-Rex Runner v3</span></h1>
+        <p class="hero-lead">Watch a Generation 58 NEAT neural network master Chromium’s <code>t-rex-runner-v2</code> in real time—leaping over cactus clusters, fast-dropping in mid-air, and ducking underneath head-height flying Pterodactyls that block upper airspace.</p>
+        <div class="badge-row" aria-label="Project highlights">
+          <span class="badge highlight">GEN 58 CHAMPION (1212.33 FIT)</span>
+          <span class="badge">100% COURSE SURVIVAL</span>
+          <span class="badge">TRUE BIRD-DUCKING PHYSICS</span>
+          <span class="badge">LIVE NEURAL TOPOLOGY</span>
+          <span class="badge">MIT LICENSE</span>
+        </div>
+        <div class="hero-actions">
+          <a class="button" href="#demo">Launch Live AI Visualizer <span aria-hidden="true">↓</span></a>
+          <button class="button secondary" id="heroDownloadGenome" type="button">Download best_genome_v3.json <span aria-hidden="true">↓</span></button>
+          <a class="text-link" href="#genome-section">Inspect Gen 58 Synapses →</a>
+        </div>
+        <div class="photo-note" role="note">
+          <span class="note-icon" aria-hidden="true">i</span>
+          <p><strong>Zero-server neuroevolution showcase.</strong> This page embeds the complete <code>t-rex-runner-v2</code> sprite sheet, multi-box collision physics, and Ujjal Saha’s Generation 58 champion genome (<code>#5662</code>) directly in the browser.</p>
+        </div>
+      </div>
+
+      <aside class="hero-card" aria-label="Project summary">
+        <div class="hero-card-head">
+          <span>PROJECT PROFILE / 006</span>
+          <span class="project-state">NEAT AI v3.0</span>
+        </div>
+        <h2>7 Sensors. 3 Hidden Nodes.<br>100% Survival Rate.</h2>
+        <p>Evolved with NEAT-Python and ported 1:1 to HTML5 Canvas, enforcing strict upper-airspace collision boxes so the AI must crouch under every flying bird.</p>
+        <ul class="hero-specs">
+          <li><span>CREATOR</span><strong>Ujjal Saha (Joyboy Lab)</strong></li>
+          <li><span>CHAMPION MODEL</span><strong>Gen 58 (ID #5662 · 1212.33 Fit)</strong></li>
+          <li><span>TOPOLOGY</span><strong>7 In → 3 Hidden → 2 Out</strong></li>
+          <li><span>VALIDATION</span><strong>100 / 100 Unseen Courses</strong></li>
+          <li><span>LICENSE</span><strong>MIT License</strong></li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- INTERACTIVE VISUAL REPRESENTATION SECTION (:8080 DASHBOARD) -->
+    <section class="section wrap" id="demo" aria-labelledby="demo-title">
+      <div class="section-head">
+        <div>
+          <p class="section-label">// INTERACTIVE AI &amp; NEURAL VISUALIZER</p>
+          <h2 id="demo-title">Live NEAT T-Rex Runner v3 Engine</h2>
+        </div>
+        <p class="section-intro">Switch between the pretrained Generation 58 Champion AI, live 100-dino browser evolution, or manual human play. Toggle hitboxes (<kbd class="key-badge">L</kbd>) or fast-forward up to 20x (<kbd class="key-badge">F</kbd>).</p>
+      </div>
+
+      <div class="demo-shell">
+        <div class="demo-top">
+          <span class="demo-title"><span class="status-dot"></span> NEAT T-REX RUNNER v3 // VISUAL TELEMETRY SUITE</span>
+          <div class="demo-badges">
+            <span class="demo-badge cyan" id="stat-gen">Model: Gen 58 Champion (Fit 1212.33 • 100% Validated)</span>
+            <span class="demo-badge">BY UJJAL SAHA · JOYBOY LAB</span>
+          </div>
+        </div>
+
+        <!-- Mode & Control Toolbar -->
+        <div class="game-tools" role="toolbar" aria-label="Simulation controls">
+          <button id="mode-ai" class="game-button btn active" type="button" title="Watch the Generation 58 NEAT champion play">🤖 AI Play (Gen 58)</button>
+          <button id="mode-train" class="game-button btn" type="button" title="Train 100 NEAT dinos simultaneously on canvas">🧬 Train NEAT (100 Dinos)</button>
+          <button id="mode-human" class="game-button btn" type="button" title="Play manually: Space/Up = Jump, Down = Duck">🎮 Human Play</button>
+          <button id="toggle-debug" class="game-button btn" type="button" title="Toggle multi-box hitboxes &amp; bird no-jump barrier (L)">Debug Hitboxes (L): ON</button>
+          <button id="toggle-speed" class="game-button btn" type="button" title="Cycle simulation speed 1x / 2x / 5x / 20x (F)">Sim Speed (F): 1x</button>
+          <label class="theme-label" for="viewportTheme">Viewport
+            <select id="viewportTheme" aria-label="Choose game canvas theme">
+              <option value="classic">Classic Chromium</option>
+              <option value="neon">Joyboy Neon Dark</option>
+              <option value="amber">Cyber Amber</option>
+            </select>
+          </label>
+          <label class="upload-label" for="genomeInput" title="Load a custom exported NEAT genome JSON file">📂 Load Genome JSON
+            <input id="genomeInput" type="file" accept=".json,application/json">
+          </label>
+          <button id="btn-restart" class="game-button btn accent" type="button">↻ Restart</button>
+        </div>
+
+        <!-- Live Action & Obstacle Counter Strip -->
+        <div class="telemetry-strip" aria-live="polite">
+          <div class="stat-pills">
+            <span id="stat-state" class="stat-pill state-running">Action: RUNNING</span>
+            <span id="stat-cacti" class="stat-pill">Cacti Jumped: 0</span>
+            <span id="stat-birds" class="stat-pill">Birds Ducked: 0</span>
+            <span id="stat-speed" class="stat-pill">Speed: 6.0</span>
+          </div>
+          <div class="stat-pills">
+            <span class="stat-pill">Obstacles Cleared: <strong id="stat-total-obs" style="color:var(--cyan)">0</strong></span>
+            <span class="stat-pill">Distance: <strong id="stat-dist-m" style="color:var(--text)">0</strong>m</span>
+          </div>
+        </div>
+
+        <!-- Authentic t-rex-runner-v2 Canvas Stage -->
+        <div class="game-stage">
+          <div class="viewport-frame" id="viewportFrame">
+            <div id="main-frame-error" class="interstitial-wrapper">
+              <div id="main-content">
+                <div class="icon icon-offline" alt=""></div>
+              </div>
+              <div id="offline-resources">
+                <img id="offline-resources-1x" src="data:image/png;base64,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">
+                <img id="offline-resources-2x" src="data:image/png;base64,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">
+                <template id="audio-resources">
+                <audio id="offline-sound-press" src="data:audio/mpeg;base64,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"></audio>
+                <audio id="offline-sound-hit" src="data:audio/mpeg;base64,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"></audio>
+                <audio id="offline-sound-reached" src="data:audio/mpeg;base64,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"></audio>
+            </template>
+            </div>
+            </div>
+          </div>
+
+          <div class="hitbox-legend">
+            <div class="legend-items">
+              <span><i class="legend-dot" style="background:#16a34a"></i>Dino Multi-Box Hitbox</span>
+              <span><i class="legend-dot" style="background:#dc2626"></i>Cactus Cluster (Must Jump)</span>
+              <span><i class="legend-dot" style="background:#ea580c"></i>Flying Bird + Upper Airspace Barrier (Cannot Jump Over — Must Duck!)</span>
+            </div>
+            <span>600×150 Logical Coordinate Space · 60 FPS</span>
+          </div>
+        </div>
+
+        <!-- Split Visual Representation: Neural Network Graph + Real-Time Telemetry Bars -->
+        <div class="viz-grid">
+          <div class="viz-panel">
+            <div class="viz-head">
+              <h3>Live NEAT Topology (7 In → 3 Hidden [23, 709, 859] → 2 Out)</h3>
+              <span class="viz-sub">Cyan = Excitatory (+) · Coral = Inhibitory (−)</span>
+            </div>
+            <canvas id="nn-canvas" width="540" height="225" aria-label="Live NEAT neural network topology graph"></canvas>
+          </div>
+
+          <div class="viz-panel">
+            <div class="viz-head">
+              <h3>Real-Time Sensor &amp; Output Telemetry</h3>
+              <span class="viz-sub">Activation: tanh · Threshold &gt; 0.50</span>
+            </div>
+            <div class="sensor-list">
+              <div class="sensor-row">
+                <span class="sensor-name">-1 dx (distance)</span>
+                <div class="sensor-track"><div class="sensor-fill" id="bar-in-0"></div></div>
+                <span class="sensor-val" id="val-in-0">1.00</span>
+              </div>
+              <div class="sensor-row">
+                <span class="sensor-name">-2 obs.width</span>
+                <div class="sensor-track"><div class="sensor-fill" id="bar-in-1"></div></div>
+                <span class="sensor-val" id="val-in-1">0.00</span>
+              </div>
+              <div class="sensor-row">
+                <span class="sensor-name">-3 bottom (bird&gt;0)</span>
+                <div class="sensor-track"><div class="sensor-fill bird-alert" id="bar-in-2"></div></div>
+                <span class="sensor-val" id="val-in-2">0.00</span>
+              </div>
+              <div class="sensor-row">
+                <span class="sensor-name">-4 top (height)</span>
+                <div class="sensor-track"><div class="sensor-fill" id="bar-in-3"></div></div>
+                <span class="sensor-val" id="val-in-3">0.00</span>
+              </div>
+              <div class="sensor-row">
+                <span class="sensor-name">-5 world.speed</span>
+                <div class="sensor-track"><div class="sensor-fill" id="bar-in-4"></div></div>
+                <span class="sensor-val" id="val-in-4">0.46</span>
+              </div>
+              <div class="sensor-row">
+                <span class="sensor-name">-6 dino.height</span>
+                <div class="sensor-track"><div class="sensor-fill" id="bar-in-5"></div></div>
+                <span class="sensor-val" id="val-in-5">0.00</span>
+              </div>
+              <div class="sensor-row">
+                <span class="sensor-name">-7 dino.vy</span>
+                <div class="sensor-track"><div class="sensor-fill" id="bar-in-6"></div></div>
+                <span class="sensor-val" id="val-in-6">0.00</span>
+              </div>
+              <div class="sensor-row" style="margin-top:4px;padding-top:6px;border-top:1px solid var(--line)">
+                <span class="sensor-name" style="color:var(--cyan);font-weight:700">OUT[0] JUMP</span>
+                <div class="sensor-track"><div class="sensor-fill out-jump" id="bar-out-0"></div></div>
+                <span class="sensor-val" id="val-out-0">-0.33</span>
+              </div>
+              <div class="sensor-row">
+                <span class="sensor-name" style="color:var(--amber);font-weight:700">OUT[1] DUCK</span>
+                <div class="sensor-track"><div class="sensor-fill out-duck" id="bar-out-1"></div></div>
+                <span class="sensor-val" id="val-out-1">-0.99</span>
+              </div>
+            </div>
+            <div class="ai-reason-box" id="ai-reason">
+              <strong>AI Decision Stream:</strong> Scanning horizon at 60 FPS — awaiting next obstacle.
+            </div>
+          </div>
+        </div>
+
+        <p class="demo-status">
+          <span><strong>Hotkeys:</strong> <kbd class="key-badge">L</kbd> Toggle Hitboxes · <kbd class="key-badge">F</kbd> Cycle Sim Speed (1x/2x/5x/20x) · <kbd class="key-badge">Space</kbd>/<kbd class="key-badge">↑</kbd> Jump · <kbd class="key-badge">↓</kbd> Duck (Human Mode)</span>
+          <span>Champion Genome: <strong>ID #5662 (Generation 58 · Fitness 1212.3333)</strong></span>
+        </p>
+      </div>
+    </section>
+
+    <!-- ENGINEERING BREAKTHROUGH SECTION -->
+    <section class="section wrap" aria-labelledby="feature-title">
+      <div class="section-head">
+        <div>
+          <p class="section-label">// THE ENGINEERING FIX</p>
+          <h2 id="feature-title">Why v2 Dinos Jumped Birds—and How v3 Solved It</h2>
+        </div>
+        <p class="section-intro">Standard NEAT T-Rex implementations allow agents to cheese flying birds by jumping over them or staying perpetually crouched. Version 3 re-engineered the physics and reward structure so true bird-ducking emerges naturally.</p>
+      </div>
+      <div class="feature-grid">
+        <article class="feature-card">
+          <span class="feature-index">01 / HEAD-HEIGHT BIRDS</span>
+          <h3>Pterodactyls at yPos 70 &amp; 75</h3>
+          <p>Flying birds spawn strictly at head-and-torso height (<code>y = 70..103</code>). A standing T-Rex (<code>y = 93..137</code>) collides head-on unless it crouches.</p>
+        </article>
+        <article class="feature-card">
+          <span class="feature-index">02 / AIRSPACE BARRIER</span>
+          <h3>No jumping over birds</h3>
+          <p>Each Pterodactyl carries an upper airspace collision box (<code>CollisionBox(4, -80, 38, 92)</code>) blocking <code>y = 0..103</code>. Jumping into a bird is an instant crash.</p>
+        </article>
+        <article class="feature-card">
+          <span class="feature-index">03 / CROUCH CLEARANCE</span>
+          <h3>Ducking &amp; 3x fast-drop</h3>
+          <p>Ducking lowers the T-Rex hitbox to <code>y = 112..137</code>, sliding cleanly below the bird's <code>y = 103</code> belly. Mid-air ducking triggers a 3x gravity speed-drop.</p>
+        </article>
+        <article class="feature-card">
+          <span class="feature-index">04 / ACTIVE POSTURE</span>
+          <h3>Anti-perpetual-crouch</h3>
+          <p>Jumping while ducking is locked out, and ground-ducking when a cactus is ahead is penalized—teaching the AI to stand upright after every bird passes.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- CHAMPION GENOME ARCHITECTURE SECTION -->
+    <section class="section wrap" id="genome-section" aria-labelledby="genome-title">
+      <div class="section-head">
+        <div>
+          <p class="section-label">// GEN 58 CHAMPION ARCHITECTURE</p>
+          <h2 id="genome-title">Inside Genome #5662 (Fitness 1212.33)</h2>
+        </div>
+        <p class="section-intro">Evolved across 58 generations on randomized 3-episode obstacle gauntlets and validated across 100 unseen 6,000-frame courses with a 100% survival rate.</p>
+      </div>
+
+      <div class="genome-grid">
+        <article class="content-card">
+          <h3>10 Evolved Synaptic Connections</h3>
+          <p>Notice how evolution discovered a direct <strong>+5.1518</strong> high-gain synapse from <code>-3 (bottom)</code>—which is positive only for flying birds—straight into <code>1 (DUCK)</code>, while routing cactus distance (<code>-1 dx</code>) through hidden node <code>#23</code> to trigger <code>0 (JUMP)</code>.</p>
+          <table class="synapse-table" aria-label="Evolved synaptic connections">
+            <thead>
+              <tr><th>SOURCE</th><th>TARGET</th><th>WEIGHT</th><th>FUNCTIONAL ROLE</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>-3 (bird bottom)</code></td><td><code>1 (DUCK)</code></td><td class="w-pos">+5.1518</td><td>Fires DUCK immediately when a flying bird is ahead</td></tr>
+              <tr><td><code>-1 (dx dist)</code></td><td><code>23 (Hidden 1)</code></td><td class="w-pos">+6.0457</td><td>Tracks horizontal distance to approaching obstacle</td></tr>
+              <tr><td><code>23 (Hidden 1)</code></td><td><code>0 (JUMP)</code></td><td class="w-neg">-5.6142</td><td>Inverts closing distance to trigger timely cactus jump</td></tr>
+              <tr><td><code>23 (Hidden 1)</code></td><td><code>1 (DUCK)</code></td><td class="w-neg">-1.7153</td><td>Suppresses ground-ducking while obstacles are far away</td></tr>
+              <tr><td><code>-5 (speed)</code></td><td><code>23 (Hidden 1)</code></td><td class="w-neg">-1.5396</td><td>Shifts jump trigger earlier as game speed accelerates</td></tr>
+              <tr><td><code>-7 (dino.vy)</code></td><td><code>859 (Hidden 3)</code></td><td class="w-pos">+2.0569</td><td>Monitors vertical velocity during jump apex</td></tr>
+              <tr><td><code>859 (Hidden 3)</code></td><td><code>0 (JUMP)</code></td><td class="w-pos">+1.8492</td><td>Sustains full jump arc over wide cactus clusters</td></tr>
+              <tr><td><code>859 (Hidden 3)</code></td><td><code>1 (DUCK)</code></td><td class="w-pos">+1.6341</td><td>Assists rapid descent recovery after jump apex</td></tr>
+              <tr><td><code>-7 (dino.vy)</code></td><td><code>23 (Hidden 1)</code></td><td class="w-pos">+0.6431</td><td>Fine-tunes mid-air posture transitions</td></tr>
+              <tr><td><code>-1 (dx dist)</code></td><td><code>709 (Hidden 2)</code></td><td class="w-pos">+3.2267</td><td>Auxiliary distance feature node</td></tr>
+            </tbody>
+          </table>
+        </article>
+
+        <article class="content-card">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px">
+            <h3 style="margin:0">best_genome_v3.json (Gen 58)</h3>
+            <button class="game-button" id="copyGenomeBtn" type="button">Copy JSON</button>
+          </div>
+          <p>Drop this JSON into the web visualizer or load it in Python to reproduce the exact Generation 58 champion behavior.</p>
+          <pre class="code-box" id="genomeJsonCode">{
+  "version": "3.0",
+  "fitness": 1212.3333333329722,
+  "input_keys": [
+    -1,
+    -2,
+    -3,
+    -4,
+    -5,
+    -6,
+    -7
+  ],
+  "output_keys": [
+    0,
+    1
+  ],
+  "input_scale": 3.0,
+  "jump_threshold": 0.5,
+  "duck_threshold": 0.5,
+  "nodes": {
+    "0": {
+      "bias": -0.34174193233590927,
+      "response": 1.0,
+      "activation": "tanh",
+      "aggregation": "sum"
+    },
+    "1": {
+      "bias": -3.997160781830055,
+      "response": 1.0,
+      "activation": "tanh",
+      "aggregation": "sum"
+    },
+    "23": {
+      "bias": -0.25914543705098064,
+      "response": 1.0,
+      "activation": "tanh",
+      "aggregation": "sum"
+    },
+    "709": {
+      "bias": 2.6253476867347834,
+      "response": 1.0,
+      "activation": "tanh",
+      "aggregation": "sum"
+    },
+    "859": {
+      "bias": -1.0057110217508778,
+      "response": 1.0,
+      "activation": "tanh",
+      "aggregation": "sum"
+    }
+  },
+  "connections": [
+    {
+      "in": 859,
+      "out": 0,
+      "weight": 1.8491844723642334
+    },
+    {
+      "in": -5,
+      "out": 23,
+      "weight": -1.5396387975126429
+    },
+    {
+      "in": -1,
+      "out": 23,
+      "weight": 6.045701496329264
+    },
+    {
+      "in": -7,
+      "out": 23,
+      "weight": 0.6430746016956168
+    },
+    {
+      "in": -7,
+      "out": 859,
+      "weight": 2.0568508114018247
+    },
+    {
+      "in": 859,
+      "out": 1,
+      "weight": 1.6341235271811603
+    },
+    {
+      "in": -3,
+      "out": 1,
+      "weight": 5.151755849244808
+    },
+    {
+      "in": 23,
+      "out": 0,
+      "weight": -5.614223737289947
+    },
+    {
+      "in": -1,
+      "out": 709,
+      "weight": 3.226699035128351
+    },
+    {
+      "in": 23,
+      "out": 1,
+      "weight": -1.7152682317799508
+    }
+  ]
+}</pre>
+        </article>
+      </div>
+    </section>
+
+    <!-- HOW TO PLAY & TRAIN LOCALLY -->
+    <section class="section wrap" aria-labelledby="how-title">
+      <div class="section-head">
+        <div>
+          <p class="section-label">// HOW TO PLAY &amp; TRAIN</p>
+          <h2 id="how-title">Watch. Compete. Evolve.</h2>
+        </div>
+        <p class="section-intro">Run the visual simulation right in this browser tab, or train your own NEAT generations locally in Python with Pygame.</p>
+      </div>
+      <div class="how-grid">
+        <article class="how-card">
+          <h3>Watch or play in browser</h3>
+          <p>Start in <strong>AI Play (Gen 58)</strong> to inspect the neural network in real time, or click <strong>Human Play</strong> (<kbd class="key-badge">Space</kbd> / <kbd class="key-badge">↓</kbd>) to test your reflexes against the same physics.</p>
+        </article>
+        <article class="how-card">
+          <h3>Train 100 dinos on canvas</h3>
+          <p>Switch to <strong>Train NEAT (100 Dinos)</strong> and press <kbd class="key-badge">F</kbd> for <code>20x</code> speed to watch a population of 100 T-Rexes evolve live in the browser.</p>
+        </article>
+        <article class="how-card">
+          <h3>Train in Python &amp; hot-swap</h3>
+          <p>Run <code>python dino_game.py --train --fast</code> locally. It automatically exports <code>best_genome_v3.json</code>, which you can upload straight into this page via <strong>Load Genome JSON</strong>.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- PROJECT & DOWNLOADS -->
+    <section class="section wrap" aria-labelledby="repo-title">
+      <div class="section-head">
+        <div>
+          <p class="section-label">// PROJECT &amp; PACKAGES</p>
+          <h2 id="repo-title">Get the Complete v3 Source</h2>
+        </div>
+        <p class="section-intro">Available as a unified Web + Python repository or standalone Pygame NEAT trainer under the MIT License.</p>
+      </div>
+      <div class="source-grid">
+        <a class="source-card" href="https://drive.google.com/file/d/1qudqpxTLH1oWASxFwL58eWIeHPrAuCHw/view?usp=drivesdk" target="_blank" rel="noopener noreferrer">
+          <span>COMPLETE SUITE (WEB + PYTHON + GEN 58 MODEL)</span>
+          <strong>t-rex-runner-v3.zip (GitHub-Ready Release) ↗</strong>
+        </a>
+        <a class="source-card" href="https://drive.google.com/file/d/1V0OmbDe6B4XoqwfqMjuGjq1sgOH-FZnl/view?usp=drivesdk" target="_blank" rel="noopener noreferrer">
+          <span>PYTHON PYGAME + NEAT-PYTHON TRAINER</span>
+          <strong>NEAT-Dino-v3.zip (Standalone Python Repo) ↗</strong>
+        </a>
+      </div>
+    </section>
+
+    <!-- LICENSE & CREDITS NOTE -->
+    <section class="section wrap" aria-labelledby="note-title">
+      <div class="closing-note">
+        <h2 id="note-title">Open Source · MIT License</h2>
+        <p><strong>Created by Ujjal Saha — Part of The Joyboy Labs.</strong> Released under the MIT License (Copyright © 2026 Ujjal Saha / Joyboy Lab). Base arcade sprite sheet adapted from Chromium’s open-source BSD-3-Clause offline runner (<code>t-rex-runner-v2</code>).</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner wrap">
+      <a class="footer-brand" href="index.html">The Joyboy Labs</a>
+      <p>Created by Ujjal Saha · Part of Joyboy Lab · MIT License</p>
+      <a class="back-top" href="#main">BACK TO TOP ↑</a>
+    </div>
+  </footer>
+
+  <!-- Joyboy Labs Telemetry Hook & Controls -->
+  <script>
+    window.updateJoyboyTelemetry = function (runner, vals) {
+      if (!runner || !vals) return;
+      var rawIn = [
+        (vals[-1] || 0) / 3.0,
+        (vals[-2] || 0) / 3.0,
+        (vals[-3] || 0) / 3.0,
+        (vals[-4] || 0) / 3.0,
+        (vals[-5] || 0) / 3.0,
+        (vals[-6] || 0) / 3.0,
+        (vals[-7] || 0) / 3.0
+      ];
+      for (var i = 0; i < 7; i++) {
+        var bar = document.getElementById('bar-in-' + i);
+        var txt = document.getElementById('val-in-' + i);
+        if (bar) {
+          var pct = Math.min(100, Math.max(0, Math.abs(rawIn[i]) * 100));
+          bar.style.width = pct.toFixed(1) + '%';
+        }
+        if (txt) {
+          txt.textContent = rawIn[i].toFixed(2);
+        }
+      }
+      var out0 = vals[0] !== undefined ? vals[0] : 0;
+      var out1 = vals[1] !== undefined ? vals[1] : 0;
+      var barOut0 = document.getElementById('bar-out-0');
+      var barOut1 = document.getElementById('bar-out-1');
+      var valOut0 = document.getElementById('val-out-0');
+      var valOut1 = document.getElementById('val-out-1');
+      if (barOut0) barOut0.style.width = Math.min(100, Math.max(0, ((out0 + 1) / 2) * 100)).toFixed(1) + '%';
+      if (barOut1) barOut1.style.width = Math.min(100, Math.max(0, ((out1 + 1) / 2) * 100)).toFixed(1) + '%';
+      if (valOut0) {
+        valOut0.textContent = (out0 >= 0 ? '+' : '') + out0.toFixed(2);
+        valOut0.style.color = out0 > 0.5 ? 'var(--cyan)' : 'var(--text)';
+      }
+      if (valOut1) {
+        valOut1.textContent = (out1 >= 0 ? '+' : '') + out1.toFixed(2);
+        valOut1.style.color = out1 > 0.5 ? 'var(--amber)' : 'var(--text)';
+      }
+
+      var elTotal = document.getElementById('stat-total-obs');
+      if (elTotal) elTotal.textContent = String((runner.cactiJumped || 0) + (runner.birdsDucked || 0));
+      var elDist = document.getElementById('stat-dist-m');
+      if (elDist) elDist.textContent = String(Math.floor((runner.distanceRan || 0) * 0.025));
+
+      var elReason = document.getElementById('ai-reason');
+      if (elReason) {
+        if (runner.mode === 'human') {
+          elReason.innerHTML = '<strong>Human Mode Active:</strong> Press Space/↑ to jump over cacti and ↓ to duck under flying birds!';
+        } else if (rawIn[2] > 0.01) {
+          elReason.innerHTML = '<strong>Flying Bird Detected (bottom = ' + rawIn[2].toFixed(2) + ' &gt; 0):</strong> Synapse <code>-3→1 (+5.15)</code> drives <strong>DUCK (' + out1.toFixed(2) + ')</strong> to crouch under upper-airspace barrier.';
+        } else if (out0 > 0.5) {
+          elReason.innerHTML = '<strong>Cactus Jump Triggered (dx = ' + rawIn[0].toFixed(2) + '):</strong> Hidden node <code>#23 (-5.61)</code> fires <strong>JUMP (' + out0.toFixed(2) + ')</strong> to clear cactus cluster.';
+        } else {
+          elReason.innerHTML = '<strong>Upright Sprint (dx = ' + rawIn[0].toFixed(2) + ', speed = ' + (runner.currentSpeed || 6).toFixed(1) + '):</strong> Outputs below +0.50 threshold — running upright.';
+        }
+      }
+    };
+  </script>
+
+  <!-- Embedded NEAT T-Rex Runner v3 Engine -->
+  <script>
+// NEAT T-Rex Runner v3 — Created by Ujjal Saha (Joyboy Lab)
+// Licensed under the MIT License (see LICENSE)
+// Copyright (c) 2014 The Chromium Authors. All rights reserved.
+// Upgraded to NEAT T-Rex Runner v3 (t-rex-runner-v2 + NEAT AI & True Bird-Ducking Physics)
+(function () {
+    'use strict';
+
+    // =========================================================================
+    // Embedded Pretrained NEAT v3 Champion Genome (100/100 Unseen Courses Passed)
+    // =========================================================================
+    var BEST_GENOME_V3 = {
+        "version": "3.0",
+        "fitness": 1212.3333333329722,
+        "input_keys": [
+                -1,
+                -2,
+                -3,
+                -4,
+                -5,
+                -6,
+                -7
+        ],
+        "output_keys": [
+                0,
+                1
+        ],
+        "input_scale": 3.0,
+        "jump_threshold": 0.5,
+        "duck_threshold": 0.5,
+        "nodes": {
+                "0": {
+                        "bias": -0.34174193233590927,
+                        "response": 1.0,
+                        "activation": "tanh",
+                        "aggregation": "sum"
+                },
+                "1": {
+                        "bias": -3.997160781830055,
+                        "response": 1.0,
+                        "activation": "tanh",
+                        "aggregation": "sum"
+                },
+                "23": {
+                        "bias": -0.25914543705098064,
+                        "response": 1.0,
+                        "activation": "tanh",
+                        "aggregation": "sum"
+                },
+                "709": {
+                        "bias": 2.6253476867347834,
+                        "response": 1.0,
+                        "activation": "tanh",
+                        "aggregation": "sum"
+                },
+                "859": {
+                        "bias": -1.0057110217508778,
+                        "response": 1.0,
+                        "activation": "tanh",
+                        "aggregation": "sum"
+                }
+        },
+        "connections": [
+                {
+                        "in": 859,
+                        "out": 0,
+                        "weight": 1.8491844723642334
+                },
+                {
+                        "in": -5,
+                        "out": 23,
+                        "weight": -1.5396387975126429
+                },
+                {
+                        "in": -1,
+                        "out": 23,
+                        "weight": 6.045701496329264
+                },
+                {
+                        "in": -7,
+                        "out": 23,
+                        "weight": 0.6430746016956168
+                },
+                {
+                        "in": -7,
+                        "out": 859,
+                        "weight": 2.0568508114018247
+                },
+                {
+                        "in": 859,
+                        "out": 1,
+                        "weight": 1.6341235271811603
+                },
+                {
+                        "in": -3,
+                        "out": 1,
+                        "weight": 5.151755849244808
+                },
+                {
+                        "in": 23,
+                        "out": 0,
+                        "weight": -5.614223737289947
+                },
+                {
+                        "in": -1,
+                        "out": 709,
+                        "weight": 3.226699035128351
+                },
+                {
+                        "in": 23,
+                        "out": 1,
+                        "weight": -1.7152682317799508
+                }
+        ]
+};
+
+    // =========================================================================
+    // Feed-Forward NEAT Neural Network Evaluator & Population Trainer
+    // =========================================================================
+    function NeatNetwork(genome) {
+        this.genome = genome;
+        this.lastValues = {};
+    }
+
+    NeatNetwork.prototype.activate = function (inputs) {
+        var values = {};
+        for (var i = 0; i < 7; i++) {
+            values[-(i + 1)] = inputs[i];
+        }
+        var nodes = this.genome.nodes;
+        var conns = this.genome.connections;
+
+        // Evaluate hidden nodes first (any node id not 0 or 1)
+        var hiddenIds = Object.keys(nodes).map(Number).filter(function (id) {
+            return id !== 0 && id !== 1;
+        });
+
+        for (var h = 0; h < hiddenIds.length; h++) {
+            var hid = hiddenIds[h];
+            var sum = 0;
+            for (var c = 0; c < conns.length; c++) {
+                if (conns[c].out === hid && values[conns[c].in] !== undefined) {
+                    sum += values[conns[c].in] * conns[c].weight;
+                }
+            }
+            var hNode = nodes[String(hid)];
+            values[hid] = Math.tanh(hNode.bias + hNode.response * sum);
+        }
+
+        // Evaluate output nodes [0 = JUMP, 1 = DUCK]
+        var outputs = [0, 0];
+        for (var outIdx = 0; outIdx < 2; outIdx++) {
+            var sumOut = 0;
+            for (var j = 0; j < conns.length; j++) {
+                if (conns[j].out === outIdx && values[conns[j].in] !== undefined) {
+                    sumOut += values[conns[j].in] * conns[j].weight;
+                }
+            }
+            var oNode = nodes[String(outIdx)];
+            var val = Math.tanh(oNode.bias + oNode.response * sumOut);
+            values[outIdx] = val;
+            outputs[outIdx] = val;
+        }
+
+        this.lastValues = values;
+        return outputs;
+    };
+
+    function computeNetworkInputs(tRex, obstacles, currentSpeed) {
+        var nextObs = null;
+        for (var i = 0; i < obstacles.length; i++) {
+            if (obstacles[i].xPos + obstacles[i].width >= tRex.xPos) {
+                nextObs = obstacles[i];
+                break;
+            }
+        }
+        var dx = 1.0, width = 0.0, bottom = 0.0, top = 0.0;
+        if (nextObs) {
+            dx = Math.min(1.0, Math.max(0.0, (nextObs.xPos - tRex.xPos - 44) / 600.0));
+            width = nextObs.width / 100.0;
+            if (nextObs.typeConfig.type === 'PTERODACTYL') {
+                bottom = (140 - (nextObs.yPos + 28)) / 100.0;
+            } else {
+                bottom = 0.0;
+            }
+            top = (140 - nextObs.yPos) / 100.0;
+        }
+        var h = Math.max(0, (tRex.groundYPos - tRex.yPos)) / 100.0;
+        var vy = (tRex.jumping ? -tRex.jumpVelocity : 0.0) / 12.0;
+        var spd = currentSpeed / 13.0;
+        var scale = 3.0;
+        return [
+            dx * scale,
+            width * scale,
+            bottom * scale,
+            top * scale,
+            spd * scale,
+            h * scale,
+            vy * scale
+        ];
+    }
+
+    function createRandomGenome() {
+        var nodes = {
+            "0": { bias: (Math.random() * 2 - 1), response: 1.0, activation: "tanh" },
+            "1": { bias: (Math.random() * 2 - 1), response: 1.0, activation: "tanh" },
+            "263": { bias: (Math.random() * 2 - 1), response: 1.0, activation: "tanh" },
+            "333": { bias: (Math.random() * 2 - 1), response: 1.0, activation: "tanh" }
+        };
+        var connections = [
+            { in: -1, out: 0, weight: (Math.random() * 4 - 2) },
+            { in: -1, out: 1, weight: (Math.random() * 4 - 2) },
+            { in: -2, out: 0, weight: (Math.random() * 2 - 1) },
+            { in: -2, out: 1, weight: (Math.random() * 4 - 2) },
+            { in: -3, out: 0, weight: -1.5 - Math.random() * 1.5 },
+            { in: -7, out: 1, weight: (Math.random() * 4 - 2) },
+            { in: -4, out: 263, weight: (Math.random() * 4 - 2) },
+            { in: 263, out: 1, weight: (Math.random() * 4 - 2) },
+            { in: -3, out: 333, weight: 0.5 + Math.random() * 1.5 },
+            { in: 333, out: 1, weight: 0.5 + Math.random() * 2.0 }
+        ];
+        return {
+            version: "3.0",
+            fitness: 0,
+            nodes: nodes,
+            connections: connections
+        };
+    }
+
+    function cloneAndMutateGenome(parent) {
+        var copy = JSON.parse(JSON.stringify(parent));
+        copy.fitness = 0;
+        Object.keys(copy.nodes).forEach(function (k) {
+            if (Math.random() < 0.7) {
+                copy.nodes[k].bias += (Math.random() * 2 - 1) * 0.45;
+            }
+        });
+        copy.connections.forEach(function (c) {
+            if (Math.random() < 0.8) {
+                c.weight += (Math.random() * 2 - 1) * 0.45;
+            } else if (Math.random() < 0.08) {
+                c.weight = (Math.random() * 4 - 2);
+            }
+        });
+        return copy;
+    }
+
+    // =========================================================================
+    // T-Rex Runner Core (Chromium t-rex-runner-v2 + v3 Enhancements)
+    // =========================================================================
+    var DEFAULT_WIDTH = 600;
+    var FPS = 60;
+    var STEP_MS = 1000 / FPS;
+    var IS_HIDPI = window.devicePixelRatio > 1;
+    var IS_IOS = /iPad|iPhone|iPod/.test(window.navigator.platform);
+    var IS_MOBILE = /Android/.test(window.navigator.userAgent) || IS_IOS;
+
+    function Runner(outerContainerId, opt_config) {
+        if (Runner.instance_) {
+            return Runner.instance_;
+        }
+        Runner.instance_ = this;
+
+        this.outerContainerEl = document.querySelector(outerContainerId);
+        this.containerEl = null;
+        this.config = opt_config || Runner.config;
+        this.dimensions = Runner.defaultDimensions;
+
+        this.canvas = null;
+        this.canvasCtx = null;
+        this.tRex = null;
+        this.distanceMeter = null;
+        this.distanceRan = 0;
+        this.highestScore = 0;
+
+        this.time = 0;
+        this.runningTime = 0;
+        this.msPerFrame = STEP_MS;
+        this.currentSpeed = this.config.SPEED;
+
+        this.activated = true;
+        this.playing = true;
+        this.crashed = false;
+        this.paused = false;
+        this.inverted = false;
+        this.invertTimer = 0;
+
+        // v3 AI & Training State
+        this.mode = 'ai'; // 'ai' | 'train' | 'human'
+        this.simSpeed = 1;
+        this.debugLines = true;
+        this.cactiJumped = 0;
+        this.birdsDucked = 0;
+        this.frameCounter = 0;
+
+        this.championGenome = JSON.parse(JSON.stringify(BEST_GENOME_V3));
+        this.activeNet = new NeatNetwork(this.championGenome);
+
+        // Population for 'train' mode (100 dinos)
+        this.popSize = 100;
+        this.generation = 1;
+        this.population = [];
+        this.bestGenFitness = 0;
+
+        this.audioBuffer = null;
+        this.soundFx = {};
+        this.audioContext = null;
+
+        this.loadImages();
+    }
+    window['Runner'] = Runner;
+
+    Runner.config = {
+        ACCELERATION: 0.0015,
+        BG_CLOUD_SPEED: 0.2,
+        BOTTOM_PAD: 10,
+        CLEAR_TIME: 400,
+        CLOUD_FREQUENCY: 0.5,
+        GAMEOVER_CLEAR_TIME: 400,
+        GAP_COEFFICIENT: 0.85,
+        GRAVITY: 0.6,
+        INITIAL_JUMP_VELOCITY: 10,
+        INVERT_FADE_DURATION: 12000,
+        INVERT_DISTANCE: 700,
+        MAX_BLINK_COUNT: 3,
+        MAX_CLOUDS: 6,
+        MAX_OBSTACLE_LENGTH: 3,
+        MAX_OBSTACLE_DUPLICATION: 2,
+        MAX_SPEED: 13,
+        MIN_JUMP_HEIGHT: 30,
+        MOBILE_SPEED_COEFFICIENT: 1.2,
+        RESOURCE_TEMPLATE_ID: 'audio-resources',
+        SPEED: 6,
+        SPEED_DROP_COEFFICIENT: 3
+    };
+
+    Runner.defaultDimensions = {
+        WIDTH: DEFAULT_WIDTH,
+        HEIGHT: 150
+    };
+
+    Runner.classes = {
+        ARCADE_MODE: 'arcade-mode',
+        CANVAS: 'runner-canvas',
+        CONTAINER: 'runner-container',
+        CRASHED: 'crashed',
+        ICON: 'icon-offline',
+        INVERTED: 'inverted',
+        SNACKBAR: 'snackbar',
+        SNACKBAR_SHOW: 'snackbar-show',
+        TOUCH_CONTROLLER: 'controller'
+    };
+
+    Runner.spriteDefinition = {
+        LDPI: {
+            CACTUS_LARGE: { x: 332, y: 2 },
+            CACTUS_SMALL: { x: 228, y: 2 },
+            CLOUD: { x: 86, y: 2 },
+            HORIZON: { x: 2, y: 54 },
+            MOON: { x: 484, y: 2 },
+            PTERODACTYL: { x: 134, y: 2 },
+            RESTART: { x: 2, y: 2 },
+            TEXT_SPRITE: { x: 655, y: 2 },
+            TREX: { x: 848, y: 2 },
+            STAR: { x: 645, y: 2 }
+        },
+        HDPI: {
+            CACTUS_LARGE: { x: 652, y: 2 },
+            CACTUS_SMALL: { x: 446, y: 2 },
+            CLOUD: { x: 166, y: 2 },
+            HORIZON: { x: 2, y: 104 },
+            MOON: { x: 954, y: 2 },
+            PTERODACTYL: { x: 260, y: 2 },
+            RESTART: { x: 2, y: 2 },
+            TEXT_SPRITE: { x: 1294, y: 2 },
+            TREX: { x: 1678, y: 2 },
+            STAR: { x: 1276, y: 2 }
+        }
+    };
+
+    Runner.sounds = {
+        BUTTON_PRESS: 'offline-sound-press',
+        HIT: 'offline-sound-hit',
+        SCORE: 'offline-sound-reached'
+    };
+
+    Runner.keycodes = {
+        JUMP: { '38': 1, '32': 1 },
+        DUCK: { '40': 1 },
+        RESTART: { '13': 1 }
+    };
+
+    Runner.events = {
+        ANIM_END: 'webkitAnimationEnd',
+        CLICK: 'click',
+        KEYDOWN: 'keydown',
+        KEYUP: 'keyup',
+        MOUSEDOWN: 'mousedown',
+        MOUSEUP: 'mouseup',
+        RESIZE: 'resize',
+        TOUCHEND: 'touchend',
+        TOUCHSTART: 'touchstart',
+        VISIBILITY: 'visibilitychange',
+        BLUR: 'blur',
+        FOCUS: 'focus',
+        LOAD: 'load'
+    };
+
+    Runner.prototype = {
+        loadImages: function () {
+            if (IS_HIDPI) {
+                Runner.imageSprite = document.getElementById('offline-resources-2x');
+                this.spriteDef = Runner.spriteDefinition.HDPI;
+            } else {
+                Runner.imageSprite = document.getElementById('offline-resources-1x');
+                this.spriteDef = Runner.spriteDefinition.LDPI;
+            }
+
+            if (Runner.imageSprite.complete && Runner.imageSprite.naturalWidth > 0) {
+                this.init();
+            } else {
+                Runner.imageSprite.addEventListener(Runner.events.LOAD, this.init.bind(this));
+            }
+        },
+
+        loadSounds: function () {
+            if (!IS_IOS && !this.audioContext) {
+                try {
+                    var AudioCtx = window.AudioContext || window.webkitAudioContext;
+                    this.audioContext = new AudioCtx();
+                    var resourceTemplate = document.getElementById(this.config.RESOURCE_TEMPLATE_ID).content;
+                    for (var sound in Runner.sounds) {
+                        var soundSrc = resourceTemplate.getElementById(Runner.sounds[sound]).src;
+                        soundSrc = soundSrc.substr(soundSrc.indexOf(',') + 1);
+                        var buffer = decodeBase64ToArrayBuffer(soundSrc);
+                        this.audioContext.decodeAudioData(buffer, function (index, audioData) {
+                            this.soundFx[index] = audioData;
+                        }.bind(this, sound));
+                    }
+                } catch (e) {}
+            }
+        },
+
+        setSpeed: function (opt_speed) {
+            this.currentSpeed = opt_speed || this.config.SPEED;
+        },
+
+        init: function () {
+            var iconEl = document.querySelector('.' + Runner.classes.ICON);
+            if (iconEl) iconEl.style.visibility = 'hidden';
+
+            this.setSpeed();
+            this.containerEl = document.createElement('div');
+            this.containerEl.className = Runner.classes.CONTAINER;
+            this.containerEl.style.width = this.dimensions.WIDTH + 'px';
+            this.containerEl.style.height = this.dimensions.HEIGHT + 'px';
+
+            this.canvas = createCanvas(this.containerEl, this.dimensions.WIDTH,
+                this.dimensions.HEIGHT, Runner.classes.PLAYER);
+
+            this.canvasCtx = this.canvas.getContext('2d');
+            this.canvasCtx.fillStyle = '#f7f7f7';
+            this.canvasCtx.fill();
+            Runner.updateCanvasScaling(this.canvas);
+
+            this.horizon = new Horizon(this.canvas, this.spriteDef, this.dimensions,
+                this.config.GAP_COEFFICIENT);
+
+            this.distanceMeter = new DistanceMeter(this.canvas,
+                this.spriteDef.TEXT_SPRITE, this.dimensions.WIDTH);
+
+            this.tRex = new Trex(this.canvas, this.spriteDef.TREX);
+            this.tRex.xPos = Trex.config.START_X_POS;
+            this.tRex.status = Trex.status.RUNNING;
+
+            this.outerContainerEl.appendChild(this.containerEl);
+
+            this.startListening();
+            this.bindDashboardControls();
+            this.update();
+        },
+
+        bindDashboardControls: function () {
+            var self = this;
+            var btnAi = document.getElementById('mode-ai');
+            var btnTrain = document.getElementById('mode-train');
+            var btnHuman = document.getElementById('mode-human');
+            var btnDebug = document.getElementById('toggle-debug');
+            var btnSpeed = document.getElementById('toggle-speed');
+            var btnRestart = document.getElementById('btn-restart');
+
+            function updateModeButtons() {
+                if (btnAi) btnAi.classList.toggle('active', self.mode === 'ai');
+                if (btnTrain) btnTrain.classList.toggle('active', self.mode === 'train');
+                if (btnHuman) btnHuman.classList.toggle('active', self.mode === 'human');
+            }
+
+            if (btnAi) {
+                btnAi.addEventListener('click', function () {
+                    self.switchMode('ai');
+                    updateModeButtons();
+                });
+            }
+            if (btnTrain) {
+                btnTrain.addEventListener('click', function () {
+                    self.switchMode('train');
+                    updateModeButtons();
+                });
+            }
+            if (btnHuman) {
+                btnHuman.addEventListener('click', function () {
+                    self.switchMode('human');
+                    updateModeButtons();
+                });
+            }
+            if (btnDebug) {
+                btnDebug.addEventListener('click', function () {
+                    self.debugLines = !self.debugLines;
+                    btnDebug.textContent = 'Debug Hitboxes (L): ' + (self.debugLines ? 'ON' : 'OFF');
+                });
+            }
+            if (btnSpeed) {
+                var speeds = [1, 2, 5, 20];
+                btnSpeed.addEventListener('click', function () {
+                    var idx = (speeds.indexOf(self.simSpeed) + 1) % speeds.length;
+                    self.simSpeed = speeds[idx];
+                    btnSpeed.textContent = 'Sim Speed (F): ' + self.simSpeed + 'x';
+                });
+            }
+            if (btnRestart) {
+                btnRestart.addEventListener('click', function () {
+                    self.restart();
+                });
+            }
+        },
+
+        switchMode: function (newMode) {
+            this.mode = newMode;
+            if (newMode === 'train') {
+                this.generation = 1;
+                this.initPopulation();
+            } else if (newMode === 'ai') {
+                this.activeNet = new NeatNetwork(this.championGenome);
+            }
+            this.restart();
+        },
+
+        initPopulation: function () {
+            this.population = [];
+            for (var i = 0; i < this.popSize; i++) {
+                var g = (i === 0) ? cloneAndMutateGenome(this.championGenome) : createRandomGenome();
+                var d = new Trex(this.canvas, this.spriteDef.TREX);
+                d.xPos = Trex.config.START_X_POS;
+                d.reset();
+                this.population.push({
+                    genome: g,
+                    net: new NeatNetwork(g),
+                    dino: d,
+                    alive: true,
+                    fitness: 0
+                });
+            }
+        },
+
+        evolvePopulation: function () {
+            this.population.sort(function (a, b) {
+                return b.fitness - a.fitness;
+            });
+            this.bestGenFitness = Math.max(this.bestGenFitness, this.population[0].fitness);
+            var elites = this.population.slice(0, 15);
+            var nextPop = [];
+            for (var i = 0; i < this.popSize; i++) {
+                var g;
+                if (i < 2) {
+                    g = JSON.parse(JSON.stringify(elites[i].genome));
+                } else {
+                    var parent = elites[Math.floor(Math.random() * elites.length)].genome;
+                    g = cloneAndMutateGenome(parent);
+                }
+                var d = new Trex(this.canvas, this.spriteDef.TREX);
+                d.xPos = Trex.config.START_X_POS;
+                d.reset();
+                nextPop.push({
+                    genome: g,
+                    net: new NeatNetwork(g),
+                    dino: d,
+                    alive: true,
+                    fitness: 0
+                });
+            }
+            this.population = nextPop;
+            this.generation++;
+        },
+
+        clearCanvas: function () {
+            this.canvasCtx.clearRect(0, 0, this.dimensions.WIDTH, this.dimensions.HEIGHT);
+        },
+
+        stepSinglePhysics: function () {
+            this.runningTime += STEP_MS;
+            this.frameCounter++;
+            var hasObstacles = this.runningTime > this.config.CLEAR_TIME;
+            var obstacles = this.horizon.obstacles;
+
+            // Count newly passed obstacles
+            for (var k = 0; k < obstacles.length; k++) {
+                var obs = obstacles[k];
+                if (!obs.passed && (obs.xPos + obs.width) < Trex.config.START_X_POS) {
+                    obs.passed = true;
+                    if (obs.typeConfig.type === 'PTERODACTYL') {
+                        this.birdsDucked++;
+                    } else {
+                        this.cactiJumped++;
+                    }
+                }
+            }
+
+            if (this.mode === 'train') {
+                if (this.population.length === 0) {
+                    this.initPopulation();
+                }
+                var nextObs = null;
+                for (var m = 0; m < obstacles.length; m++) {
+                    if (obstacles[m].xPos + obstacles[m].width >= Trex.config.START_X_POS) {
+                        nextObs = obstacles[m];
+                        break;
+                    }
+                }
+                var birdNearby = nextObs && nextObs.typeConfig.type === 'PTERODACTYL' &&
+                    (nextObs.xPos - Trex.config.START_X_POS) < 260;
+
+                for (var p = 0; p < this.population.length; p++) {
+                    var agent = this.population[p];
+                    if (!agent.alive) continue;
+                    var inputs = computeNetworkInputs(agent.dino, obstacles, this.currentSpeed);
+                    var out = agent.net.activate(inputs);
+                    var wantJump = out[0] > 0.5;
+                    var wantDuck = out[1] > 0.5;
+                    var wasJumping = agent.dino.jumping;
+                    agent.dino.stepAI(wantJump, wantDuck, this.currentSpeed);
+                    if (!wasJumping && agent.dino.ducking && !birdNearby) {
+                        agent.fitness -= 0.25;
+                    } else {
+                        agent.fitness += 0.1;
+                    }
+                }
+
+                this.horizon.update(STEP_MS, this.currentSpeed, hasObstacles, this.inverted, true);
+
+                var aliveCount = 0;
+                var leadAgent = null;
+                for (var q = 0; q < this.population.length; q++) {
+                    var ag = this.population[q];
+                    if (!ag.alive) continue;
+                    if (hasObstacles && obstacles.length > 0 && checkForCollision(obstacles[0], ag.dino)) {
+                        ag.alive = false;
+                    } else {
+                        aliveCount++;
+                        if (!leadAgent) leadAgent = ag;
+                    }
+                }
+
+                if (leadAgent) {
+                    this.tRex = leadAgent.dino;
+                    this.activeNet = leadAgent.net;
+                }
+
+                if (aliveCount === 0) {
+                    this.evolvePopulation();
+                    this.runningTime = 0;
+                    this.distanceRan = 0;
+                    this.setSpeed(this.config.SPEED);
+                    this.horizon.reset();
+                    return;
+                }
+
+                this.distanceRan += this.currentSpeed;
+                if (this.currentSpeed < this.config.MAX_SPEED) {
+                    this.currentSpeed = Math.min(this.config.MAX_SPEED, this.currentSpeed + this.config.ACCELERATION);
+                }
+                return;
+            }
+
+            // AI or Human single-dino mode
+            if (this.mode === 'ai') {
+                var aiInputs = computeNetworkInputs(this.tRex, obstacles, this.currentSpeed);
+                var aiOut = this.activeNet.activate(aiInputs);
+                var jumpCmd = aiOut[0] > 0.5;
+                var duckCmd = aiOut[1] > 0.5;
+                this.tRex.stepAI(jumpCmd, duckCmd, this.currentSpeed);
+            } else {
+                if (this.tRex.jumping) {
+                    this.tRex.updateJump(STEP_MS);
+                }
+            }
+
+            this.horizon.update(STEP_MS, this.currentSpeed, hasObstacles, this.inverted, true);
+
+            var collision = hasObstacles && obstacles.length > 0 &&
+                checkForCollision(obstacles[0], this.tRex);
+
+            if (!collision) {
+                this.distanceRan += this.currentSpeed;
+                if (this.currentSpeed < this.config.MAX_SPEED) {
+                    this.currentSpeed = Math.min(this.config.MAX_SPEED, this.currentSpeed + this.config.ACCELERATION);
+                }
+            } else {
+                this.gameOver();
+            }
+        },
+
+        update: function () {
+            this.updatePending = false;
+
+            if (this.playing) {
+                var steps = (this.mode === 'human') ? 1 : this.simSpeed;
+                for (var s = 0; s < steps; s++) {
+                    if (!this.playing) break;
+                    this.stepSinglePhysics();
+                }
+
+                // Render current state onto canvas
+                this.clearCanvas();
+                this.horizon.drawAll();
+
+                if (this.mode === 'train') {
+                    this.canvasCtx.save();
+                    for (var i = 0; i < this.population.length; i++) {
+                        var ag = this.population[i];
+                        if (!ag.alive) continue;
+                        this.canvasCtx.globalAlpha = (ag.dino === this.tRex) ? 1.0 : 0.22;
+                        ag.dino.update(STEP_MS);
+                    }
+                    this.canvasCtx.restore();
+                } else {
+                    this.tRex.update(STEP_MS);
+                }
+
+                if (this.debugLines) {
+                    this.drawDebugOverlay();
+                }
+
+                var playAchievementSound = this.distanceMeter.update(STEP_MS, Math.ceil(this.distanceRan));
+                if (playAchievementSound && this.simSpeed === 1) {
+                    this.playSound(this.soundFx.SCORE);
+                }
+
+                this.updateDashboardUI();
+                this.drawNeuralNetworkGraph();
+            }
+
+            if (this.playing) {
+                this.scheduleNextUpdate();
+            }
+        },
+
+        drawDebugOverlay: function () {
+            var ctx = this.canvasCtx;
+            var obstacles = this.horizon.obstacles;
+            ctx.save();
+
+            // Draw T-Rex detailed collision boxes in red
+            var tRexBox = new CollisionBox(
+                this.tRex.xPos + 1,
+                this.tRex.yPos + 1,
+                (this.tRex.ducking ? this.tRex.config.WIDTH_DUCK : this.tRex.config.WIDTH) - 2,
+                this.tRex.config.HEIGHT - 2
+            );
+            var tBoxes = this.tRex.ducking ? Trex.collisionBoxes.DUCKING : Trex.collisionBoxes.RUNNING;
+            ctx.strokeStyle = '#ef4444';
+            ctx.lineWidth = 1;
+            for (var t = 0; t < tBoxes.length; t++) {
+                var b = createAdjustedCollisionBox(tBoxes[t], tRexBox);
+                ctx.strokeRect(b.x, b.y, b.width, b.height);
+            }
+
+            // Draw obstacle boxes & bird no-jump zone
+            var nextObs = null;
+            for (var i = 0; i < obstacles.length; i++) {
+                var obs = obstacles[i];
+                if (!nextObs && obs.xPos + obs.width >= this.tRex.xPos) {
+                    nextObs = obs;
+                }
+                var oBase = new CollisionBox(obs.xPos + 1, obs.yPos + 1, obs.width - 2, obs.typeConfig.height - 2);
+                for (var j = 0; j < obs.collisionBoxes.length; j++) {
+                    var ob = createAdjustedCollisionBox(obs.collisionBoxes[j], oBase);
+                    if (ob.y < 0) {
+                        // Upper no-jump airspace barrier for flying birds
+                        ctx.fillStyle = 'rgba(249, 115, 22, 0.14)';
+                        ctx.fillRect(ob.x, 0, ob.width, obs.yPos + 12);
+                        ctx.strokeStyle = 'rgba(234, 88, 12, 0.55)';
+                        ctx.strokeRect(ob.x, 0, ob.width, obs.yPos + 12);
+                    } else {
+                        ctx.strokeStyle = '#16a34a';
+                        ctx.strokeRect(ob.x, ob.y, ob.width, ob.height);
+                    }
+                }
+            }
+
+            // Sensor line from T-Rex to next obstacle
+            if (nextObs) {
+                ctx.strokeStyle = '#ea580c';
+                ctx.beginPath();
+                ctx.moveTo(this.tRex.xPos + 40, this.tRex.yPos + 22);
+                ctx.lineTo(nextObs.xPos + 4, nextObs.yPos + 18);
+                ctx.stroke();
+            }
+
+            ctx.restore();
+        },
+
+        updateDashboardUI: function () {
+            var elState = document.getElementById('stat-state');
+            var elCacti = document.getElementById('stat-cacti');
+            var elBirds = document.getElementById('stat-birds');
+            var elSpeed = document.getElementById('stat-speed');
+            var elGen = document.getElementById('stat-gen');
+
+            if (elState) {
+                var st = this.crashed ? 'CRASHED' : (this.tRex.ducking ? 'DUCKING' : (this.tRex.jumping ? 'JUMPING' : 'RUNNING'));
+                elState.textContent = 'Action: ' + st;
+                elState.className = 'stat-pill state-' + st.toLowerCase();
+            }
+            if (elCacti) elCacti.textContent = 'Cacti Jumped: ' + this.cactiJumped;
+            if (elBirds) elBirds.textContent = 'Birds Ducked: ' + this.birdsDucked;
+            if (elSpeed) elSpeed.textContent = 'Speed: ' + this.currentSpeed.toFixed(1);
+            if (elGen) {
+                if (this.mode === 'train') {
+                    var alive = this.population.filter(function (a) { return a.alive; }).length;
+                    elGen.textContent = 'Gen ' + this.generation + ' | Alive: ' + alive + '/100';
+                } else if (this.mode === 'ai') {
+                    elGen.textContent = 'Model: Gen 58 Champion (Fit 1212.33 • 100% Validated)';
+                } else {
+                    elGen.textContent = 'Mode: Human Player';
+                }
+            }
+        },
+
+        drawNeuralNetworkGraph: function () {
+            var nnCanvas = document.getElementById('nn-canvas');
+            if (!nnCanvas || !this.activeNet) return;
+            var ctx = nnCanvas.getContext('2d');
+            var w = nnCanvas.width;
+            var h = nnCanvas.height;
+            ctx.clearRect(0, 0, w, h);
+
+            var isDark = document.body.classList.contains('joyboy-dark') || document.body.classList.contains('inverted');
+            var vals = this.activeNet.lastValues || {};
+            var genome = this.activeNet.genome;
+
+            var inputLabels = [
+                'dx (dist)',
+                'width',
+                'bottom (bird>0)',
+                'top (height)',
+                'speed',
+                'dino.h',
+                'dino.vy'
+            ];
+
+            var pos = {};
+            var inX = 128;
+            var midX = Math.round(w * 0.53);
+            var outX = w - 108;
+
+            for (var i = 0; i < 7; i++) {
+                pos[-(i + 1)] = { x: inX, y: 24 + i * Math.floor((h - 44) / 6), label: inputLabels[i] };
+            }
+
+            var hiddenIds = Object.keys(genome.nodes || {}).map(Number).filter(function (id) {
+                return id !== 0 && id !== 1;
+            }).sort(function (a, b) { return a - b; });
+
+            for (var hIdx = 0; hIdx < hiddenIds.length; hIdx++) {
+                var hid = hiddenIds[hIdx];
+                var hy = Math.round(((h - 24) / (hiddenIds.length + 1)) * (hIdx + 1)) + 12;
+                pos[hid] = { x: midX, y: hy, label: 'H' + (hIdx + 1) + ' (' + hid + ')' };
+            }
+
+            pos[0] = { x: outX, y: Math.round(h * 0.33), label: 'JUMP' };
+            pos[1] = { x: outX, y: Math.round(h * 0.68), label: 'DUCK' };
+
+            // Connections
+            var conns = genome.connections || [];
+            for (var c = 0; c < conns.length; c++) {
+                var conn = conns[c];
+                var p1 = pos[conn.in];
+                var p2 = pos[conn.out];
+                if (!p1 || !p2) continue;
+                var signal = (vals[conn.in] || 0) * conn.weight;
+                ctx.beginPath();
+                ctx.moveTo(p1.x, p1.y);
+                ctx.lineTo(p2.x, p2.y);
+                ctx.lineWidth = Math.min(4.2, Math.max(1.1, Math.abs(conn.weight) * 0.72));
+                if (isDark) {
+                    ctx.strokeStyle = signal >= 0 ? 'rgba(0, 255, 204, 0.72)' : 'rgba(255, 123, 114, 0.62)';
+                } else {
+                    ctx.strokeStyle = signal >= 0 ? 'rgba(22, 163, 74, 0.68)' : 'rgba(220, 38, 38, 0.58)';
+                }
+                ctx.stroke();
+            }
+
+            // Nodes
+            ctx.font = '600 10.5px "SFMono-Regular", Consolas, ui-monospace, monospace';
+            Object.keys(pos).forEach(function (k) {
+                var id = Number(k);
+                var pt = pos[id];
+                var v = vals[id] !== undefined ? vals[id] : 0;
+                var isActiveOut = (id === 0 || id === 1) && v > 0.5;
+
+                ctx.beginPath();
+                ctx.arc(pt.x, pt.y, (id === 0 || id === 1) ? 13 : 9, 0, Math.PI * 2);
+                if (isDark) {
+                    if (id === 0 || id === 1) {
+                        ctx.fillStyle = isActiveOut ? (id === 1 ? '#e3b341' : '#00ffcc') : '#16202b';
+                    } else if (id > 0) {
+                        ctx.fillStyle = v > 0.1 ? 'rgba(195, 161, 255, 0.35)' : (v < -0.1 ? 'rgba(255, 123, 114, 0.3)' : '#16202b');
+                    } else {
+                        ctx.fillStyle = v > 0.1 ? 'rgba(0, 255, 204, 0.28)' : '#16202b';
+                    }
+                    ctx.fill();
+                    ctx.lineWidth = 1.6;
+                    ctx.strokeStyle = isActiveOut ? '#ffffff' : (id > 0 && id !== 1 ? '#c3a1ff' : '#58a6ff');
+                    ctx.stroke();
+                } else {
+                    if (id === 0 || id === 1) {
+                        ctx.fillStyle = isActiveOut ? '#ea580c' : '#e4e4e7';
+                    } else {
+                        ctx.fillStyle = v > 0.1 ? '#bbf7d0' : (v < -0.1 ? '#fecaca' : '#f4f4f5');
+                    }
+                    ctx.fill();
+                    ctx.lineWidth = 1.5;
+                    ctx.strokeStyle = isActiveOut ? '#9a3412' : '#71717a';
+                    ctx.stroke();
+                }
+
+                if (id < 0) {
+                    ctx.fillStyle = isDark ? '#e6edf3' : '#27272a';
+                    ctx.textAlign = 'right';
+                    ctx.fillText(pt.label + ' [' + (v / 3.0).toFixed(2) + ']', pt.x - 13, pt.y + 3.5);
+                } else if (id === 0 || id === 1) {
+                    ctx.textAlign = 'left';
+                    ctx.fillStyle = isDark ? (isActiveOut ? (id === 1 ? '#e3b341' : '#00ffcc') : '#a1adba') : (isActiveOut ? '#ea580c' : '#27272a');
+                    ctx.fillText(pt.label + ' (' + v.toFixed(2) + ')', pt.x + 17, pt.y + 4);
+                } else {
+                    ctx.textAlign = 'center';
+                    ctx.fillStyle = isDark ? '#c3a1ff' : '#27272a';
+                    ctx.fillText(pt.label + ':' + v.toFixed(2), pt.x, pt.y - 12);
+                }
+            });
+
+            // Also update live telemetry bars if present on the Joyboy Labs subpage
+            if (typeof window.updateJoyboyTelemetry === 'function') {
+                window.updateJoyboyTelemetry(this, vals);
+            }
+        },
+
+        handleEvent: function (e) {
+            return (function (evtType, events) {
+                switch (evtType) {
+                    case events.KEYDOWN:
+                    case events.TOUCHSTART:
+                    case events.MOUSEDOWN:
+                        this.onKeyDown(e);
+                        break;
+                    case events.KEYUP:
+                    case events.TOUCHEND:
+                    case events.MOUSEUP:
+                        this.onKeyUp(e);
+                        break;
+                }
+            }.bind(this))(e.type, Runner.events);
+        },
+
+        startListening: function () {
+            document.addEventListener(Runner.events.KEYDOWN, this);
+            document.addEventListener(Runner.events.KEYUP, this);
+        },
+
+        onKeyDown: function (e) {
+            if (e.keyCode === 76) { // 'L' key toggles debug hitboxes
+                this.debugLines = !this.debugLines;
+                var btnDebug = document.getElementById('toggle-debug');
+                if (btnDebug) btnDebug.textContent = 'Debug Hitboxes (L): ' + (this.debugLines ? 'ON' : 'OFF');
+                return;
+            }
+            if (e.keyCode === 70) { // 'F' key cycles simulation speed
+                var speeds = [1, 2, 5, 20];
+                this.simSpeed = speeds[(speeds.indexOf(this.simSpeed) + 1) % speeds.length];
+                var btnSpeed = document.getElementById('toggle-speed');
+                if (btnSpeed) btnSpeed.textContent = 'Sim Speed (F): ' + this.simSpeed + 'x';
+                return;
+            }
+
+            if (this.mode !== 'human') {
+                if (Runner.keycodes.JUMP[e.keyCode] && this.crashed) {
+                    e.preventDefault();
+                    this.restart();
+                }
+                return;
+            }
+
+            if (!this.crashed && Runner.keycodes.JUMP[e.keyCode]) {
+                e.preventDefault();
+                this.loadSounds();
+                if (!this.tRex.jumping && !this.tRex.ducking) {
+                    this.playSound(this.soundFx.BUTTON_PRESS);
+                    this.tRex.startJump(this.currentSpeed);
+                }
+            }
+            if (this.playing && !this.crashed && Runner.keycodes.DUCK[e.keyCode]) {
+                e.preventDefault();
+                if (this.tRex.jumping) {
+                    this.tRex.speedDrop = true;
+                } else if (!this.tRex.jumping && !this.tRex.ducking) {
+                    this.tRex.setDuck(true);
+                }
+            }
+        },
+
+        onKeyUp: function (e) {
+            if (this.mode !== 'human') return;
+            var keyCode = String(e.keyCode);
+            var isjumpKey = Runner.keycodes.JUMP[keyCode];
+
+            if (this.isRunning() && isjumpKey) {
+                this.tRex.endJump();
+            } else if (Runner.keycodes.DUCK[keyCode]) {
+                this.tRex.speedDrop = false;
+                this.tRex.setDuck(false);
+            } else if (this.crashed) {
+                if (Runner.keycodes.RESTART[keyCode] || Runner.keycodes.JUMP[keyCode]) {
+                    this.restart();
+                }
+            }
+        },
+
+        scheduleNextUpdate: function () {
+            if (!this.updatePending) {
+                this.updatePending = true;
+                this.raqId = requestAnimationFrame(this.update.bind(this));
+            }
+        },
+
+        isRunning: function () {
+            return !!this.raqId;
+        },
+
+        gameOver: function () {
+            this.playSound(this.soundFx.HIT);
+            this.stop();
+            this.crashed = true;
+            this.distanceMeter.acheivement = false;
+            this.tRex.update(100, Trex.status.CRASHED);
+
+            if (!this.gameOverPanel) {
+                this.gameOverPanel = new GameOverPanel(this.canvas,
+                    this.spriteDef.TEXT_SPRITE, this.spriteDef.RESTART,
+                    this.dimensions);
+            } else {
+                this.gameOverPanel.draw();
+            }
+
+            if (this.distanceRan > this.highestScore) {
+                this.highestScore = Math.ceil(this.distanceRan);
+                this.distanceMeter.setHighScore(this.highestScore);
+            }
+            this.updateDashboardUI();
+        },
+
+        stop: function () {
+            this.playing = false;
+            this.paused = true;
+            cancelAnimationFrame(this.raqId);
+            this.raqId = 0;
+        },
+
+        restart: function () {
+            this.stop();
+            this.runningTime = 0;
+            this.playing = true;
+            this.paused = false;
+            this.crashed = false;
+            this.distanceRan = 0;
+            this.cactiJumped = 0;
+            this.birdsDucked = 0;
+            this.setSpeed(this.config.SPEED);
+            this.clearCanvas();
+            this.distanceMeter.reset(this.highestScore);
+            this.horizon.reset();
+            this.tRex.reset();
+            this.update();
+        },
+
+        playSound: function (soundBuffer) {
+            if (soundBuffer && this.audioContext) {
+                try {
+                    var sourceNode = this.audioContext.createBufferSource();
+                    sourceNode.buffer = soundBuffer;
+                    sourceNode.connect(this.audioContext.destination);
+                    sourceNode.start(0);
+                } catch (e) {}
+            }
+        }
+    };
+
+    Runner.updateCanvasScaling = function (canvas, opt_width, opt_height) {
+        var context = canvas.getContext('2d');
+        var devicePixelRatio = Math.floor(window.devicePixelRatio) || 1;
+        var backingStoreRatio = Math.floor(context.webkitBackingStorePixelRatio) || 1;
+        var ratio = devicePixelRatio / backingStoreRatio;
+
+        if (devicePixelRatio !== backingStoreRatio) {
+            var oldWidth = opt_width || canvas.width;
+            var oldHeight = opt_height || canvas.height;
+            canvas.width = oldWidth * ratio;
+            canvas.height = oldHeight * ratio;
+            canvas.style.width = oldWidth + 'px';
+            canvas.style.height = oldHeight + 'px';
+            context.scale(ratio, ratio);
+            return true;
+        }
+        return false;
+    };
+
+    function getRandomNum(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function createCanvas(container, width, height, opt_classname) {
+        var canvas = document.createElement('canvas');
+        canvas.className = opt_classname ? Runner.classes.CANVAS + ' ' +
+            opt_classname : Runner.classes.CANVAS;
+        canvas.width = width;
+        canvas.height = height;
+        container.appendChild(canvas);
+        return canvas;
+    }
+
+    function decodeBase64ToArrayBuffer(base64String) {
+        var len = (base64String.length / 4) * 3;
+        var str = atob(base64String);
+        var arrayBuffer = new ArrayBuffer(len);
+        var bytes = new Uint8Array(arrayBuffer);
+        for (var i = 0; i < len; i++) {
+            bytes[i] = str.charCodeAt(i);
+        }
+        return bytes.buffer;
+    }
+
+    function getTimeStamp() {
+        return performance.now();
+    }
+
+    // =========================================================================
+    // GameOverPanel
+    // =========================================================================
+    function GameOverPanel(canvas, textImgPos, restartImgPos, dimensions) {
+        this.canvas = canvas;
+        this.canvasCtx = canvas.getContext('2d');
+        this.canvasDimensions = dimensions;
+        this.textImgPos = textImgPos;
+        this.restartImgPos = restartImgPos;
+        this.draw();
+    }
+
+    GameOverPanel.dimensions = {
+        TEXT_X: 0,
+        TEXT_Y: 13,
+        TEXT_WIDTH: 191,
+        TEXT_HEIGHT: 11,
+        RESTART_WIDTH: 36,
+        RESTART_HEIGHT: 32
+    };
+
+    GameOverPanel.prototype = {
+        draw: function () {
+            var dimensions = GameOverPanel.dimensions;
+            var centerX = this.canvasDimensions.WIDTH / 2;
+            var textSourceX = dimensions.TEXT_X;
+            var textSourceY = dimensions.TEXT_Y;
+            var textSourceWidth = dimensions.TEXT_WIDTH;
+            var textSourceHeight = dimensions.TEXT_HEIGHT;
+            var textTargetX = Math.round(centerX - (dimensions.TEXT_WIDTH / 2));
+            var textTargetY = Math.round((this.canvasDimensions.HEIGHT - 25) / 3);
+            var restartSourceWidth = dimensions.RESTART_WIDTH;
+            var restartSourceHeight = dimensions.RESTART_HEIGHT;
+            var restartTargetX = centerX - (dimensions.RESTART_WIDTH / 2);
+            var restartTargetY = this.canvasDimensions.HEIGHT / 2;
+
+            if (IS_HIDPI) {
+                textSourceY *= 2;
+                textSourceX *= 2;
+                textSourceWidth *= 2;
+                textSourceHeight *= 2;
+                restartSourceWidth *= 2;
+                restartSourceHeight *= 2;
+            }
+            textSourceX += this.textImgPos.x;
+            textSourceY += this.textImgPos.y;
+
+            this.canvasCtx.drawImage(Runner.imageSprite,
+                textSourceX, textSourceY, textSourceWidth, textSourceHeight,
+                textTargetX, textTargetY, dimensions.TEXT_WIDTH, dimensions.TEXT_HEIGHT);
+
+            this.canvasCtx.drawImage(Runner.imageSprite,
+                this.restartImgPos.x, this.restartImgPos.y,
+                restartSourceWidth, restartSourceHeight,
+                restartTargetX, restartTargetY, dimensions.RESTART_WIDTH,
+                dimensions.RESTART_HEIGHT);
+        }
+    };
+
+    // =========================================================================
+    // Multi-Box Collision Detection (with Upper Airspace Barrier for Birds)
+    // =========================================================================
+    function CollisionBox(x, y, w, h) {
+        this.x = x;
+        this.y = y;
+        this.width = w;
+        this.height = h;
+    }
+
+    function createAdjustedCollisionBox(box, adjustment) {
+        return new CollisionBox(
+            box.x + adjustment.x,
+            box.y + adjustment.y,
+            box.width,
+            box.height
+        );
+    }
+
+    function boxCompare(tRexBox, obstacleBox) {
+        return (
+            tRexBox.x < obstacleBox.x + obstacleBox.width &&
+            tRexBox.x + tRexBox.width > obstacleBox.x &&
+            tRexBox.y < obstacleBox.y + obstacleBox.height &&
+            tRexBox.height + tRexBox.y > obstacleBox.y
+        );
+    }
+
+    function checkForCollision(obstacle, tRex) {
+        var tRexWidth = tRex.ducking ? tRex.config.WIDTH_DUCK : tRex.config.WIDTH;
+        var tRexBox = new CollisionBox(
+            tRex.xPos + 1,
+            tRex.yPos + 1,
+            tRexWidth - 2,
+            tRex.config.HEIGHT - 2
+        );
+
+        var obstacleBox = (obstacle.typeConfig.type === 'PTERODACTYL')
+            ? new CollisionBox(
+                obstacle.xPos + 1,
+                0,
+                obstacle.width - 2,
+                obstacle.yPos + obstacle.typeConfig.height - 2
+            )
+            : new CollisionBox(
+                obstacle.xPos + 1,
+                obstacle.yPos + 1,
+                obstacle.width - 2,
+                obstacle.typeConfig.height - 2
+            );
+
+        if (boxCompare(tRexBox, obstacleBox)) {
+            var collisionBoxes = obstacle.collisionBoxes;
+            var tRexCollisionBoxes = tRex.ducking
+                ? Trex.collisionBoxes.DUCKING
+                : Trex.collisionBoxes.RUNNING;
+
+            var baseObsBox = new CollisionBox(
+                obstacle.xPos + 1,
+                obstacle.yPos + 1,
+                obstacle.width - 2,
+                obstacle.typeConfig.height - 2
+            );
+
+            for (var t = 0; t < tRexCollisionBoxes.length; t++) {
+                for (var i = 0; i < collisionBoxes.length; i++) {
+                    var adjTrexBox = createAdjustedCollisionBox(tRexCollisionBoxes[t], tRexBox);
+                    var adjObstacleBox = createAdjustedCollisionBox(collisionBoxes[i], baseObsBox);
+                    if (boxCompare(adjTrexBox, adjObstacleBox)) {
+                        return [adjTrexBox, adjObstacleBox];
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    // =========================================================================
+    // Obstacle (Cacti + Head-Height Flying Pterodactyls)
+    // =========================================================================
+    function Obstacle(canvasCtx, type, spriteImgPos, dimensions, gapCoefficient, speed) {
+        this.canvasCtx = canvasCtx;
+        this.spritePos = spriteImgPos;
+        this.typeConfig = type;
+        this.gapCoefficient = gapCoefficient;
+        this.size = getRandomNum(1, type.maxSize || 3);
+        this.dimensions = dimensions;
+        this.remove = false;
+        this.xPos = dimensions.WIDTH + 20;
+        this.yPos = 0;
+        this.width = 0;
+        this.collisionBoxes = [];
+        this.gap = 0;
+        this.passed = false;
+
+        this.currentFrame = 0;
+        this.timer = 0;
+
+        this.init(speed);
+    }
+
+    Obstacle.MAX_GAP_COEFFICIENT = 1.5;
+
+    Obstacle.prototype = {
+        init: function (speed) {
+            this.cloneCollisionBoxes();
+
+            if (this.size > 1 && this.typeConfig.multipleSpeed > speed) {
+                this.size = 1;
+            }
+            this.width = this.typeConfig.width * this.size;
+
+            if (Array.isArray(this.typeConfig.yPos)) {
+                var yPosConfig = this.typeConfig.yPos;
+                this.yPos = yPosConfig[getRandomNum(0, yPosConfig.length - 1)];
+            } else {
+                this.yPos = this.typeConfig.yPos;
+            }
+
+            if (this.size > 1 && this.collisionBoxes.length >= 3) {
+                this.collisionBoxes[1].width = this.width - this.collisionBoxes[0].width -
+                    this.collisionBoxes[2].width;
+                this.collisionBoxes[2].x = this.width - this.collisionBoxes[2].width;
+            }
+
+            this.gap = this.getGap(this.gapCoefficient, speed);
+        },
+
+        draw: function () {
+            var sourceWidth = this.typeConfig.width;
+            var sourceHeight = this.typeConfig.height;
+
+            if (IS_HIDPI) {
+                sourceWidth = sourceWidth * 2;
+                sourceHeight = sourceHeight * 2;
+            }
+
+            var sourceX = (sourceWidth * this.size) * (0.5 * (this.size - 1)) +
+                this.spritePos.x;
+
+            if (this.currentFrame > 0) {
+                sourceX += sourceWidth * this.currentFrame;
+            }
+
+            this.canvasCtx.drawImage(Runner.imageSprite,
+                sourceX, this.spritePos.y,
+                sourceWidth * this.size, sourceHeight,
+                Math.round(this.xPos), this.yPos,
+                this.typeConfig.width * this.size, this.typeConfig.height);
+        },
+
+        update: function (deltaTime, speed, skipDraw) {
+            if (!this.remove) {
+                this.xPos -= speed;
+
+                if (this.typeConfig.numFrames) {
+                    this.timer += deltaTime;
+                    if (this.timer >= this.typeConfig.frameRate) {
+                        this.currentFrame =
+                            this.currentFrame == this.typeConfig.numFrames - 1
+                                ? 0 : this.currentFrame + 1;
+                        this.timer = 0;
+                    }
+                }
+                if (!skipDraw) {
+                    this.draw();
+                }
+                if (!this.isVisible()) {
+                    this.remove = true;
+                }
+            }
+        },
+
+        getGap: function (gapCoefficient, speed) {
+            var minGap = Math.round(this.width * speed + 150 * gapCoefficient);
+            var maxGap = Math.round(minGap * Obstacle.MAX_GAP_COEFFICIENT);
+            return getRandomNum(minGap, maxGap);
+        },
+
+        isVisible: function () {
+            return this.xPos + this.width > -10;
+        },
+
+        cloneCollisionBoxes: function () {
+            var collisionBoxes = this.typeConfig.collisionBoxes;
+            for (var i = collisionBoxes.length - 1; i >= 0; i--) {
+                this.collisionBoxes[i] = new CollisionBox(
+                    collisionBoxes[i].x,
+                    collisionBoxes[i].y,
+                    collisionBoxes[i].width,
+                    collisionBoxes[i].height
+                );
+            }
+        }
+    };
+
+    Obstacle.types = [
+        {
+            type: 'CACTUS_SMALL',
+            width: 17,
+            height: 35,
+            yPos: 105,
+            maxSize: 3,
+            multipleSpeed: 4,
+            minGap: 150,
+            minSpeed: 0,
+            collisionBoxes: [
+                new CollisionBox(0, 7, 5, 27),
+                new CollisionBox(4, 0, 6, 34),
+                new CollisionBox(10, 4, 7, 14)
+            ]
+        },
+        {
+            type: 'CACTUS_LARGE',
+            width: 25,
+            height: 50,
+            yPos: 90,
+            maxSize: 2,
+            multipleSpeed: 7,
+            minGap: 150,
+            minSpeed: 0,
+            collisionBoxes: [
+                new CollisionBox(0, 12, 7, 38),
+                new CollisionBox(8, 0, 7, 49),
+                new CollisionBox(13, 10, 10, 38)
+            ]
+        },
+        {
+            type: 'PTERODACTYL',
+            width: 46,
+            height: 40,
+            // Head-height flying birds: hits standing head, blocks jumping over, requires ducking!
+            yPos: [75, 70],
+            maxSize: 1,
+            multipleSpeed: 999,
+            minSpeed: 6.2,
+            minGap: 150,
+            collisionBoxes: [
+                new CollisionBox(15, 15, 16, 5),
+                new CollisionBox(18, 21, 24, 6),
+                new CollisionBox(2, 14, 4, 3),
+                new CollisionBox(6, 10, 4, 7),
+                new CollisionBox(10, 8, 6, 9),
+                // Upper airspace collision barrier: jumping into a bird ALWAYS collides!
+                new CollisionBox(4, -80, 38, 92)
+            ],
+            numFrames: 2,
+            frameRate: 1000 / 6,
+            speedOffset: 0
+        }
+    ];
+
+    // =========================================================================
+    // Trex Character (Synchronized with Python Dino physics)
+    // =========================================================================
+    function Trex(canvas, spritePos) {
+        this.canvas = canvas;
+        this.canvasCtx = canvas.getContext('2d');
+        this.spritePos = spritePos;
+        this.xPos = Trex.config.START_X_POS;
+        this.yPos = 0;
+        this.groundYPos = 0;
+        this.currentFrame = 0;
+        this.currentAnimFrames = [];
+        this.timer = 0;
+        this.msPerFrame = 1000 / FPS;
+        this.config = Trex.config;
+        this.status = Trex.status.RUNNING;
+
+        this.jumping = false;
+        this.ducking = false;
+        this.jumpVelocity = 0;
+        this.reachedMinHeight = false;
+        this.speedDrop = false;
+        this.jumpCount = 0;
+
+        this.init();
+    }
+
+    Trex.config = {
+        DROP_VELOCITY: -5,
+        GRAVITY: 0.6,
+        HEIGHT: 47,
+        HEIGHT_DUCK: 25,
+        INIITAL_JUMP_VELOCITY: -10,
+        INTRO_DURATION: 1500,
+        MAX_JUMP_HEIGHT: 30,
+        MIN_JUMP_HEIGHT: 30,
+        SPEED_DROP_COEFFICIENT: 3,
+        SPRITE_WIDTH: 262,
+        START_X_POS: 50,
+        WIDTH: 44,
+        WIDTH_DUCK: 59
+    };
+
+    Trex.collisionBoxes = {
+        DUCKING: [
+            new CollisionBox(1, 18, 55, 25)
+        ],
+        RUNNING: [
+            new CollisionBox(22, 0, 17, 16),
+            new CollisionBox(1, 18, 30, 9),
+            new CollisionBox(10, 35, 14, 8),
+            new CollisionBox(1, 24, 29, 5),
+            new CollisionBox(5, 30, 21, 4),
+            new CollisionBox(9, 34, 15, 4)
+        ]
+    };
+
+    Trex.status = {
+        CRASHED: 'CRASHED',
+        DUCKING: 'DUCKING',
+        JUMPING: 'JUMPING',
+        RUNNING: 'RUNNING',
+        WAITING: 'WAITING'
+    };
+
+    Trex.animFrames = {
+        WAITING: { frames: [44, 0], msPerFrame: 1000 / 3 },
+        RUNNING: { frames: [88, 132], msPerFrame: 1000 / 12 },
+        CRASHED: { frames: [220], msPerFrame: 1000 / 60 },
+        JUMPING: { frames: [0], msPerFrame: 1000 / 60 },
+        DUCKING: { frames: [264, 323], msPerFrame: 1000 / 8 }
+    };
+
+    Trex.prototype = {
+        init: function () {
+            this.groundYPos = Runner.defaultDimensions.HEIGHT - this.config.HEIGHT -
+                Runner.config.BOTTOM_PAD;
+            this.yPos = this.groundYPos;
+            this.minJumpHeight = this.groundYPos - this.config.MIN_JUMP_HEIGHT;
+            this.update(0, Trex.status.RUNNING);
+        },
+
+        stepAI: function (jump, duck, speed) {
+            if (!this.jumping) {
+                if (duck) {
+                    this.setDuck(true);
+                } else {
+                    this.setDuck(false);
+                    if (jump) {
+                        this.startJump(speed);
+                    }
+                }
+            }
+
+            if (this.jumping) {
+                this.speedDrop = !!duck;
+                this.yPos += Math.round(this.jumpVelocity);
+                var gravity = this.config.GRAVITY *
+                    (this.speedDrop ? this.config.SPEED_DROP_COEFFICIENT : 1.0);
+                this.jumpVelocity += gravity;
+
+                if (this.yPos < this.minJumpHeight) {
+                    this.reachedMinHeight = true;
+                }
+                if (this.yPos < this.config.MAX_JUMP_HEIGHT) {
+                    this.endJump();
+                }
+
+                if (this.yPos >= this.groundYPos) {
+                    this.yPos = this.groundYPos;
+                    this.jumping = false;
+                    this.jumpVelocity = 0;
+                    this.speedDrop = false;
+                    this.setDuck(!!duck);
+                }
+            }
+        },
+
+        update: function (deltaTime, opt_status) {
+            this.timer += deltaTime;
+
+            if (opt_status) {
+                this.status = opt_status;
+                this.currentFrame = 0;
+                this.msPerFrame = Trex.animFrames[opt_status].msPerFrame;
+                this.currentAnimFrames = Trex.animFrames[opt_status].frames;
+            }
+
+            this.draw(this.currentAnimFrames[this.currentFrame], 0);
+
+            if (this.timer >= this.msPerFrame) {
+                this.currentFrame = this.currentFrame ==
+                    this.currentAnimFrames.length - 1 ? 0 : this.currentFrame + 1;
+                this.timer = 0;
+            }
+        },
+
+        draw: function (x, y) {
+            var sourceX = x;
+            var sourceY = y;
+            var sourceWidth = this.ducking && this.status != Trex.status.CRASHED ?
+                this.config.WIDTH_DUCK : this.config.WIDTH;
+            var sourceHeight = this.config.HEIGHT;
+
+            if (IS_HIDPI) {
+                sourceX *= 2;
+                sourceY *= 2;
+                sourceWidth *= 2;
+                sourceHeight *= 2;
+            }
+
+            sourceX += this.spritePos.x;
+            sourceY += this.spritePos.y;
+
+            if (this.ducking && this.status != Trex.status.CRASHED) {
+                this.canvasCtx.drawImage(Runner.imageSprite, sourceX, sourceY,
+                    sourceWidth, sourceHeight,
+                    this.xPos, this.yPos,
+                    this.config.WIDTH_DUCK, this.config.HEIGHT);
+            } else {
+                this.canvasCtx.drawImage(Runner.imageSprite, sourceX, sourceY,
+                    sourceWidth, sourceHeight,
+                    this.xPos, this.yPos,
+                    this.config.WIDTH, this.config.HEIGHT);
+            }
+        },
+
+        startJump: function (speed) {
+            if (!this.jumping && !this.ducking) {
+                this.update(0, Trex.status.JUMPING);
+                this.jumpVelocity = this.config.INIITAL_JUMP_VELOCITY - (speed / 10);
+                this.jumping = true;
+                this.reachedMinHeight = false;
+                this.speedDrop = false;
+            }
+        },
+
+        endJump: function () {
+            if (this.reachedMinHeight &&
+                this.jumpVelocity < this.config.DROP_VELOCITY) {
+                this.jumpVelocity = this.config.DROP_VELOCITY;
+            }
+        },
+
+        updateJump: function () {
+            this.yPos += Math.round(this.jumpVelocity);
+            var gravity = this.config.GRAVITY *
+                (this.speedDrop ? this.config.SPEED_DROP_COEFFICIENT : 1.0);
+            this.jumpVelocity += gravity;
+
+            if (this.yPos < this.minJumpHeight) {
+                this.reachedMinHeight = true;
+            }
+            if (this.yPos < this.config.MAX_JUMP_HEIGHT) {
+                this.endJump();
+            }
+            if (this.yPos >= this.groundYPos) {
+                this.reset();
+                this.jumpCount++;
+            }
+        },
+
+        setDuck: function (isDucking) {
+            if (isDucking && this.status != Trex.status.DUCKING) {
+                this.update(0, Trex.status.DUCKING);
+                this.ducking = true;
+            } else if (!isDucking && this.status == Trex.status.DUCKING) {
+                this.update(0, Trex.status.RUNNING);
+                this.ducking = false;
+            }
+        },
+
+        reset: function () {
+            this.yPos = this.groundYPos;
+            this.jumpVelocity = 0;
+            this.jumping = false;
+            this.ducking = false;
+            this.speedDrop = false;
+            this.jumpCount = 0;
+            this.update(0, Trex.status.RUNNING);
+        }
+    };
+
+    // =========================================================================
+    // DistanceMeter, Cloud, HorizonLine, Horizon
+    // =========================================================================
+    function DistanceMeter(canvas, spritePos, canvasWidth) {
+        this.canvas = canvas;
+        this.canvasCtx = canvas.getContext('2d');
+        this.image = Runner.imageSprite;
+        this.spritePos = spritePos;
+        this.x = 0;
+        this.y = 5;
+        this.maxScore = 0;
+        this.highScore = [];
+        this.digits = [];
+        this.acheivement = false;
+        this.defaultString = '';
+        this.flashTimer = 0;
+        this.flashIterations = 0;
+        this.config = DistanceMeter.config;
+        this.maxScoreUnits = this.config.MAX_DISTANCE_UNITS;
+        this.init(canvasWidth);
+    }
+
+    DistanceMeter.dimensions = { WIDTH: 10, HEIGHT: 13, DEST_WIDTH: 11 };
+    DistanceMeter.config = {
+        MAX_DISTANCE_UNITS: 5,
+        ACHIEVEMENT_DISTANCE: 100,
+        COEFFICIENT: 0.025,
+        FLASH_DURATION: 1000 / 4,
+        FLASH_ITERATIONS: 3
+    };
+
+    DistanceMeter.prototype = {
+        init: function (width) {
+            var maxDistanceStr = '';
+            this.calcXPos(width);
+            for (var i = 0; i < this.maxScoreUnits; i++) {
+                this.draw(i, 0);
+                this.defaultString += '0';
+                maxDistanceStr += '9';
+            }
+            this.maxScore = parseInt(maxDistanceStr, 10);
+        },
+        calcXPos: function (canvasWidth) {
+            this.x = canvasWidth - (DistanceMeter.dimensions.DEST_WIDTH * (this.maxScoreUnits + 1));
+        },
+        draw: function (digitPos, value, opt_highScore) {
+            var sourceWidth = DistanceMeter.dimensions.WIDTH;
+            var sourceHeight = DistanceMeter.dimensions.HEIGHT;
+            var sourceX = DistanceMeter.dimensions.WIDTH * value;
+            var sourceY = 0;
+            var targetX = digitPos * DistanceMeter.dimensions.DEST_WIDTH;
+            var targetY = this.y;
+
+            if (IS_HIDPI) {
+                sourceWidth *= 2;
+                sourceHeight *= 2;
+                sourceX *= 2;
+            }
+            sourceX += this.spritePos.x;
+            sourceY += this.spritePos.y;
+
+            this.canvasCtx.save();
+            if (opt_highScore) {
+                var highScoreX = this.x - (this.maxScoreUnits * 2) * DistanceMeter.dimensions.WIDTH;
+                this.canvasCtx.translate(highScoreX, this.y);
+            } else {
+                this.canvasCtx.translate(this.x, this.y);
+            }
+            this.canvasCtx.drawImage(this.image, sourceX, sourceY,
+                sourceWidth, sourceHeight,
+                targetX, targetY,
+                DistanceMeter.dimensions.WIDTH, DistanceMeter.dimensions.HEIGHT);
+            this.canvasCtx.restore();
+        },
+        getActualDistance: function (distance) {
+            return distance ? Math.round(distance * this.config.COEFFICIENT) : 0;
+        },
+        update: function (deltaTime, distance) {
+            var paint = true;
+            var playSound = false;
+
+            if (!this.acheivement) {
+                distance = this.getActualDistance(distance);
+                if (distance > 0) {
+                    if (distance % this.config.ACHIEVEMENT_DISTANCE == 0) {
+                        this.acheivement = true;
+                        this.flashTimer = 0;
+                        playSound = true;
+                    }
+                    var distanceStr = (this.defaultString + distance).substr(-this.maxScoreUnits);
+                    this.digits = distanceStr.split('');
+                } else {
+                    this.digits = this.defaultString.split('');
+                }
+            } else {
+                if (this.flashIterations <= this.config.FLASH_ITERATIONS) {
+                    this.flashTimer += deltaTime;
+                    if (this.flashTimer < this.config.FLASH_DURATION) {
+                        paint = false;
+                    } else if (this.flashTimer > this.config.FLASH_DURATION * 2) {
+                        this.flashTimer = 0;
+                        this.flashIterations++;
+                    }
+                } else {
+                    this.acheivement = false;
+                    this.flashIterations = 0;
+                    this.flashTimer = 0;
+                }
+            }
+
+            if (paint) {
+                for (var i = this.digits.length - 1; i >= 0; i--) {
+                    this.draw(i, parseInt(this.digits[i], 10));
+                }
+            }
+            this.drawHighScore();
+            return playSound;
+        },
+        drawHighScore: function () {
+            this.canvasCtx.save();
+            this.canvasCtx.globalAlpha = 0.8;
+            for (var i = this.highScore.length - 1; i >= 0; i--) {
+                this.draw(i, parseInt(this.highScore[i], 10), true);
+            }
+            this.canvasCtx.restore();
+        },
+        setHighScore: function (distance) {
+            distance = this.getActualDistance(distance);
+            var highScoreStr = (this.defaultString + distance).substr(-this.maxScoreUnits);
+            this.highScore = ['10', '11', ''].concat(highScoreStr.split(''));
+        },
+        reset: function () {
+            this.update(0, 0);
+            this.acheivement = false;
+        }
+    };
+
+    function Cloud(canvas, spritePos, containerWidth) {
+        this.canvas = canvas;
+        this.canvasCtx = this.canvas.getContext('2d');
+        this.spritePos = spritePos;
+        this.containerWidth = containerWidth;
+        this.xPos = containerWidth;
+        this.yPos = getRandomNum(30, 71);
+        this.remove = false;
+        this.cloudGap = getRandomNum(100, 400);
+    }
+
+    Cloud.config = { HEIGHT: 14, WIDTH: 46 };
+    Cloud.prototype = {
+        draw: function () {
+            var sourceWidth = Cloud.config.WIDTH;
+            var sourceHeight = Cloud.config.HEIGHT;
+            if (IS_HIDPI) {
+                sourceWidth *= 2;
+                sourceHeight *= 2;
+            }
+            this.canvasCtx.drawImage(Runner.imageSprite, this.spritePos.x,
+                this.spritePos.y, sourceWidth, sourceHeight,
+                Math.round(this.xPos), this.yPos,
+                Cloud.config.WIDTH, Cloud.config.HEIGHT);
+        },
+        update: function (speed, skipDraw) {
+            if (!this.remove) {
+                this.xPos -= speed;
+                if (!skipDraw) this.draw();
+                if (this.xPos + Cloud.config.WIDTH <= 0) {
+                    this.remove = true;
+                }
+            }
+        }
+    };
+
+    function HorizonLine(canvas, spritePos) {
+        this.spritePos = spritePos;
+        this.canvas = canvas;
+        this.canvasCtx = canvas.getContext('2d');
+        this.dimensions = { WIDTH: 600, HEIGHT: 12, YPOS: 127 };
+        this.sourceDimensions = {
+            WIDTH: IS_HIDPI ? 1200 : 600,
+            HEIGHT: IS_HIDPI ? 24 : 12
+        };
+        this.sourceXPos = [this.spritePos.x, this.spritePos.x + this.sourceDimensions.WIDTH];
+        this.xPos = [0, 600];
+        this.yPos = 127;
+    }
+
+    HorizonLine.prototype = {
+        getRandomType: function () {
+            return Math.random() > 0.5 ? this.sourceDimensions.WIDTH : 0;
+        },
+        draw: function () {
+            this.canvasCtx.drawImage(Runner.imageSprite, this.sourceXPos[0],
+                this.spritePos.y,
+                this.sourceDimensions.WIDTH, this.sourceDimensions.HEIGHT,
+                Math.round(this.xPos[0]), this.yPos,
+                this.dimensions.WIDTH, this.dimensions.HEIGHT);
+
+            this.canvasCtx.drawImage(Runner.imageSprite, this.sourceXPos[1],
+                this.spritePos.y,
+                this.sourceDimensions.WIDTH, this.sourceDimensions.HEIGHT,
+                Math.round(this.xPos[1]), this.yPos,
+                this.dimensions.WIDTH, this.dimensions.HEIGHT);
+        },
+        updateXPos: function (pos, increment) {
+            var line1 = pos;
+            var line2 = pos == 0 ? 1 : 0;
+            this.xPos[line1] -= increment;
+            this.xPos[line2] = this.xPos[line1] + this.dimensions.WIDTH;
+
+            if (this.xPos[line1] <= -this.dimensions.WIDTH) {
+                this.xPos[line1] += this.dimensions.WIDTH * 2;
+                this.xPos[line2] = this.xPos[line1] - this.dimensions.WIDTH;
+                this.sourceXPos[line1] = this.getRandomType() + this.spritePos.x;
+            }
+        },
+        update: function (deltaTime, speed, skipDraw) {
+            var increment = speed;
+            if (this.xPos[0] <= 0) {
+                this.updateXPos(0, increment);
+            } else {
+                this.updateXPos(1, increment);
+            }
+            if (!skipDraw) this.draw();
+        },
+        reset: function () {
+            this.xPos[0] = 0;
+            this.xPos[1] = 600;
+        }
+    };
+
+    function Horizon(canvas, spritePos, dimensions, gapCoefficient) {
+        this.canvas = canvas;
+        this.canvasCtx = this.canvas.getContext('2d');
+        this.dimensions = dimensions;
+        this.gapCoefficient = gapCoefficient;
+        this.obstacles = [];
+        this.obstacleHistory = [];
+        this.spritePos = spritePos;
+        this.clouds = [];
+        this.cloudSpeed = 0.2;
+        this.horizonLine = new HorizonLine(this.canvas, this.spritePos.HORIZON);
+        this.addCloud();
+    }
+
+    Horizon.prototype = {
+        update: function (deltaTime, currentSpeed, updateObstacles, showNightMode, skipDraw) {
+            this.horizonLine.update(deltaTime, currentSpeed, skipDraw);
+            this.updateClouds(deltaTime, currentSpeed, skipDraw);
+            if (updateObstacles) {
+                this.updateObstacles(deltaTime, currentSpeed, skipDraw);
+            }
+        },
+        drawAll: function () {
+            this.horizonLine.draw();
+            for (var c = 0; c < this.clouds.length; c++) {
+                this.clouds[c].draw();
+            }
+            for (var o = 0; o < this.obstacles.length; o++) {
+                this.obstacles[o].draw();
+            }
+        },
+        updateClouds: function (deltaTime, speed, skipDraw) {
+            var cloudSpeed = this.cloudSpeed / 1000 * deltaTime * speed;
+            var numClouds = this.clouds.length;
+            if (numClouds) {
+                for (var i = numClouds - 1; i >= 0; i--) {
+                    this.clouds[i].update(cloudSpeed, skipDraw);
+                }
+                var lastCloud = this.clouds[numClouds - 1];
+                if (numClouds < 6 && (this.dimensions.WIDTH - lastCloud.xPos) > lastCloud.cloudGap &&
+                    0.5 > Math.random()) {
+                    this.addCloud();
+                }
+                this.clouds = this.clouds.filter(function (obj) { return !obj.remove; });
+            } else {
+                this.addCloud();
+            }
+        },
+        updateObstacles: function (deltaTime, currentSpeed, skipDraw) {
+            var updatedObstacles = this.obstacles.slice(0);
+            for (var i = 0; i < this.obstacles.length; i++) {
+                var obstacle = this.obstacles[i];
+                obstacle.update(deltaTime, currentSpeed, skipDraw);
+                if (obstacle.remove) {
+                    updatedObstacles.shift();
+                }
+            }
+            this.obstacles = updatedObstacles;
+
+            if (this.obstacles.length > 0) {
+                var lastObstacle = this.obstacles[this.obstacles.length - 1];
+                if (lastObstacle && !lastObstacle.followingObstacleCreated &&
+                    lastObstacle.isVisible() &&
+                    (lastObstacle.xPos + lastObstacle.width + lastObstacle.gap) <
+                    this.dimensions.WIDTH) {
+                    this.addNewObstacle(currentSpeed);
+                    lastObstacle.followingObstacleCreated = true;
+                }
+            } else {
+                this.addNewObstacle(currentSpeed);
+            }
+        },
+        addNewObstacle: function (currentSpeed) {
+            var canPtero = currentSpeed >= 6.2;
+            var obstacleType;
+            if (canPtero && Math.random() < 0.35) {
+                obstacleType = Obstacle.types[2]; // PTERODACTYL
+            } else if (Math.random() < 0.5) {
+                obstacleType = Obstacle.types[0]; // CACTUS_SMALL
+            } else {
+                obstacleType = Obstacle.types[1]; // CACTUS_LARGE
+            }
+
+            if (this.duplicateObstacleCheck(obstacleType.type)) {
+                obstacleType = (canPtero && obstacleType.type !== 'PTERODACTYL')
+                    ? Obstacle.types[2]
+                    : (obstacleType.type !== 'CACTUS_SMALL' ? Obstacle.types[0] : Obstacle.types[1]);
+            }
+
+            var obstacleSpritePos = this.spritePos[obstacleType.type];
+            this.obstacles.push(new Obstacle(this.canvasCtx, obstacleType,
+                obstacleSpritePos, this.dimensions,
+                this.gapCoefficient, currentSpeed));
+
+            this.obstacleHistory.unshift(obstacleType.type);
+            if (this.obstacleHistory.length > 2) {
+                this.obstacleHistory.splice(2);
+            }
+        },
+        duplicateObstacleCheck: function (nextObstacleType) {
+            var duplicateCount = 0;
+            for (var i = 0; i < this.obstacleHistory.length; i++) {
+                duplicateCount = this.obstacleHistory[i] == nextObstacleType ? duplicateCount + 1 : 0;
+            }
+            return duplicateCount >= 2;
+        },
+        reset: function () {
+            this.obstacles = [];
+            this.obstacleHistory = [];
+            this.horizonLine.reset();
+        },
+        addCloud: function () {
+            this.clouds.push(new Cloud(this.canvas, this.spritePos.CLOUD, this.dimensions.WIDTH));
+        }
+    };
+})();
+
+function onDocumentLoad() {
+    new Runner('.interstitial-wrapper');
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', onDocumentLoad);
+} else {
+    onDocumentLoad();
+}
+
+  </script>
+
+  <!-- Subpage Interactive Utilities (Theme Switcher, Genome Upload/Download/Copy) -->
+  <script>
+    (() => {
+      const viewportTheme = document.getElementById('viewportTheme');
+      const viewportFrame = document.getElementById('viewportFrame');
+      if (viewportTheme && viewportFrame) {
+        viewportTheme.addEventListener('change', () => {
+          viewportFrame.classList.remove('theme-neon', 'theme-amber');
+          if (viewportTheme.value === 'neon') viewportFrame.classList.add('theme-neon');
+          if (viewportTheme.value === 'amber') viewportFrame.classList.add('theme-amber');
+        });
+      }
+
+      // Sync active class on mode buttons
+      ['mode-ai', 'mode-train', 'mode-human'].forEach((id) => {
+        const btn = document.getElementById(id);
+        if (!btn) return;
+        btn.addEventListener('click', () => {
+          ['mode-ai', 'mode-train', 'mode-human'].forEach((otherId) => {
+            document.getElementById(otherId)?.classList.remove('active');
+          });
+          btn.classList.add('active');
+        });
+      });
+
+      // Load custom genome JSON
+      const genomeInput = document.getElementById('genomeInput');
+      if (genomeInput) {
+        genomeInput.addEventListener('change', () => {
+          const file = genomeInput.files?.[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            try {
+              const parsed = JSON.parse(String(e.target?.result || ''));
+              if (!parsed.nodes || !parsed.connections) throw new Error('Invalid genome schema');
+              const inst = window.Runner?.instance_;
+              if (inst) {
+                inst.championGenome = parsed;
+                // Re-instantiate network by clicking AI mode
+                document.getElementById('mode-ai')?.click();
+                inst.championGenome = parsed;
+                inst.activeNet.genome = parsed;
+                inst.restart();
+                const elGen = document.getElementById('stat-gen');
+                if (elGen) elGen.textContent = 'Model: Custom Loaded Genome (Fit ' + Number(parsed.fitness || 0).toFixed(2) + ')';
+              }
+            } catch (err) {
+              alert('Could not parse NEAT genome JSON: ' + err.message);
+            }
+          };
+          reader.readAsText(file);
+        });
+      }
+
+      // Download best_genome_v3.json
+      const downloadBtn = document.getElementById('heroDownloadGenome');
+      const genomeCodeEl = document.getElementById('genomeJsonCode');
+      if (downloadBtn && genomeCodeEl) {
+        downloadBtn.addEventListener('click', () => {
+          const blob = new Blob([genomeCodeEl.textContent || ''], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'best_genome_v3.json';
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
+        });
+      }
+
+      // Copy JSON button
+      const copyBtn = document.getElementById('copyGenomeBtn');
+      if (copyBtn && genomeCodeEl) {
+        copyBtn.addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(genomeCodeEl.textContent || '');
+            copyBtn.textContent = 'Copied!';
+            setTimeout(() => { copyBtn.textContent = 'Copy JSON'; }, 1800);
+          } catch (_) {
+            copyBtn.textContent = 'Select & Copy';
+          }
+        });
+      }
+    })();
+  </script>
+</body>
+</html>
