@@ -1,0 +1,40 @@
+/* Motion layer: GSAP + Lenis. Everything here is inert when .js-motion is absent
+   (reduced-motion users, or JS failed), so the site stays fully usable. */
+
+/* Lenis needs native smooth-scroll off */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-stopped { overflow: hidden; }
+
+/* Hide split targets until GSAP has built them (no flash, no jump) */
+.js-motion .home-hero h1 { animation: none; visibility: hidden; }
+.js-motion .section-heading h2,
+.js-motion .lab-note-copy h2,
+.js-motion .closing-cta h2 { visibility: hidden; }
+.split-line { overflow: hidden; padding-bottom: .08em; margin-bottom: -.08em; }
+
+/* Cursor spotlight on cards: follows the pointer via --mx / --my */
+.js-motion .focus-card, .js-motion .principle-row { position: relative; isolation: isolate; }
+.js-motion .focus-card::after {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  border-radius: inherit; opacity: 0; transition: opacity .35s ease;
+  background: radial-gradient(360px circle at var(--mx, 50%) var(--my, 50%),
+              rgba(88, 232, 194, .10), transparent 65%);
+}
+.js-motion .focus-card:hover::after { opacity: 1; }
+
+/* Hero console: lines are revealed by GSAP */
+.js-motion .console-body > * { will-change: transform, opacity; }
+
+@media (prefers-reduced-motion: reduce) {
+  .js-motion .home-hero h1,
+  .js-motion .section-heading h2,
+  .js-motion .lab-note-copy h2,
+  .js-motion .closing-cta h2 { visibility: visible; }
+}
+
+/* Progress bar + page curtain */
+.scroll-progress { position: fixed; z-index: 999; top: 0; left: 0; right: 0; height: 2px; transform: scaleX(0); transform-origin: 0 50%;
+  background: linear-gradient(90deg, var(--accent, #58e8c2), var(--accent-blue, #82b6ff), var(--accent-violet, #c3a1ff)); pointer-events: none; }
+.page-curtain { position: fixed; z-index: 998; inset: 0; background: var(--bg-deep, #090d12); pointer-events: none; visibility: hidden; }
+.js-motion .focus-card { transform-style: preserve-3d; }

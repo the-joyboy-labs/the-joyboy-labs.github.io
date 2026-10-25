@@ -116,21 +116,27 @@
 
   const starCount = document.querySelector("[data-github-stars]");
   if (starCount) {
-    fetch("https://api.github.com/repos/ujjal-saha/Flappy_Friend-v0001", {
-      headers: { Accept: "application/vnd.github+json" },
-    })
-      .then((response) => {
-        if (!response.ok) throw new Error("GitHub star count unavailable");
-        return response.json();
+    // Only contact GitHub's API after the visitor has accepted (see js/consent.js).
+    starCount.textContent = "\u2013";
+    let starsRequested = false;
+    const loadStars = () => {
+      if (starsRequested) return;
+      starsRequested = true;
+      fetch("https://api.github.com/repos/ujjal-saha/Flappy_Friend-v0001", {
+        headers: { Accept: "application/vnd.github+json" },
       })
-      .then((repository) => {
-        if (Number.isInteger(repository.stargazers_count)) {
-          starCount.textContent = new Intl.NumberFormat().format(repository.stargazers_count);
-        }
-      })
-      .catch(() => {
-        // Keep the built-in zero as a graceful offline fallback.
-      });
+        .then((response) => {
+          if (!response.ok) throw new Error("GitHub star count unavailable");
+          return response.json();
+        })
+        .then((repository) => {
+          if (Number.isInteger(repository.stargazers_count)) {
+            starCount.textContent = new Intl.NumberFormat().format(repository.stargazers_count);
+          }
+        })
+        .catch(() => {});
+    };
+    document.addEventListener("joyboy:consent-granted", loadStars);
   }
 
   const year = String(new Date().getFullYear());
